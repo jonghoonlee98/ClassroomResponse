@@ -5,13 +5,13 @@
 {% block content %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change_list' %}">My Quizzes</a></li>
+      {% comment %}<li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change_list' %}">My Quizzes</a></li>{% endcomment %}
       <li class="breadcrumb-item active" aria-current="page">{{ quiz.name }}</li>
     </ol>
   </nav>
   <h2 class="mb-3">
     {{ quiz.name }}
-    <a href="{% url 'teachers:quiz_results' quiz.pk %}" class="btn btn-primary float-right">View results</a>
+    {% comment %}<a href="{% url 'teachers:quiz_results' pk=course_pk quiz_pk=quiz.pk %}" class="btn btn-primary float-right">View results</a>{% endcomment %}
   </h2>
   <div class="row mb-3">
     <div class="col-md-6 col-sm-8 col-12">
@@ -19,8 +19,8 @@
         {% csrf_token %}
         {{ form|crispy }}
         <button type="submit" class="btn btn-success">Save changes</button>
-        <a href="{% url 'teachers:quiz_change_list' %}" class="btn btn-outline-secondary" role="button">Nevermind</a>
-        <a href="{% url 'teachers:quiz_delete' quiz.pk %}" class="btn btn-danger float-right">Delete</a>
+        <a href="{% url 'teachers:quiz_change_list' course_pk %}" class="btn btn-outline-secondary" role="button">Nevermind</a>
+        <a href="{% url 'teachers:quiz_delete' course_pk=course_pk pk=quiz_pk %}" class="btn btn-danger float-right">Delete</a>
       </form>
     </div>
   </div>
@@ -40,7 +40,7 @@
         <div class="list-group-item">
           <div class="row">
             <div class="col-10">
-              <a href="{% url 'teachers:question_change' quiz.pk question.pk %}">{{ question.text }}</a>
+              <a href="{% url 'teachers:question_change' course_pk quiz.pk question.pk %}">{{ question.text }}</a>
             </div>
             <div class="col-2">
               {{ question.answers_count }}
@@ -49,12 +49,12 @@
         </div>
       {% empty %}
         <div class="list-group-item text-center">
-          <p class="text-muted font-italic mb-0">You haven't created any questions yet. Go ahead and <a href="{% url 'teachers:question_add' quiz.pk %}">add the first question</a>.</p>
+          <p class="text-muted font-italic mb-0">You haven't created any questions yet. Go ahead and <a href="{% url 'teachers:question_add' course_pk=course_pk pk=quiz_pk %}">add the first question</a>.</p>
         </div>
       {% endfor %}
     </div>
     <div class="card-footer">
-      <a href="{% url 'teachers:question_add' quiz.pk %}" class="btn btn-primary btn-sm">Add question</a>
+      <a href="{% url 'teachers:question_add' course_pk=course_pk pk=quiz_pk %}" class="btn btn-primary btn-sm">Add question</a>
     </div>
   </div>
 {% endblock %}

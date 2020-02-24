@@ -31,7 +31,7 @@ class Course(models.Model):
 
 
 class Quiz(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizzes')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes')
     name = models.CharField(max_length=255)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='quizzes')
 
