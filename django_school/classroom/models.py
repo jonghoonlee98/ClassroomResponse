@@ -25,6 +25,7 @@ class Subject(models.Model):
 class Course(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
     name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.name
@@ -33,7 +34,6 @@ class Course(models.Model):
 class Quiz(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes')
     name = models.CharField(max_length=255)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='quizzes')
 
     def __str__(self):
         return self.name
@@ -60,6 +60,7 @@ class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
     interests = models.ManyToManyField(Subject, related_name='interested_students')
+    courses = models.ManyToManyField(Course, related_name='student_courses')
 
     def get_unanswered_questions(self, quiz):
         answered_questions = self.quiz_answers \
@@ -67,6 +68,9 @@ class Student(models.Model):
             .values_list('answer__question__pk', flat=True)
         questions = quiz.questions.exclude(pk__in=answered_questions).order_by('text')
         return questions
+
+    def get_courses(self):
+        return self.courses
 
     def __str__(self):
         return self.user.username
