@@ -15,6 +15,7 @@
       <form method="post" novalidate>
         {% csrf_token %}
         {{ form|crispy }}
+        The code is a unique id that students will use to register<br/>
         <button type="submit" class="btn btn-success">Save</button>
         <a href="{% url 'teachers:course_change_list' %}" class="btn btn-outline-secondary" role="button">Cancel</a>
       </form>

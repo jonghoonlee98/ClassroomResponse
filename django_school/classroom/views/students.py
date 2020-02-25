@@ -9,8 +9,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView
 
 from ..decorators import student_required
-from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm
-from ..models import Quiz, Student, TakenQuiz, User
+from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm, CourseRegistrationForm
+from ..models import Quiz, Student, TakenQuiz, User, Course
 
 
 class StudentSignUpView(CreateView):
@@ -44,6 +44,39 @@ class StudentInterestsView(UpdateView):
 
 
 @method_decorator([login_required, student_required], name='dispatch')
+class CourseListView(ListView):
+    model = Course
+    ordering = ('name', )
+    context_object_name = 'courses'
+    template_name = 'classroom/students/course_list.html'
+
+    def get_queryset(self):
+        student = self.request.user.student
+        course_list = student.courses.values_list('pk', flat=True)
+        queryset = Course.objects.filter(id__in=course_list)
+        return queryset
+
+
+@login_required
+@student_required
+def add_course(request):
+    student = request.user.student
+
+    if request.method == 'POST':
+        form = CourseRegistrationForm(request.POST)
+        if form.is_valid():
+            course = Course.objects.filter(code=form.cleaned_data['code'])[0]
+            print(course.name)
+            student.courses.add(course)
+            messages.success(request, 'Successfully registered course!')
+            return redirect('students:course_list')
+    else:
+        form = CourseRegistrationForm()
+
+    return render(request, 'classroom/students/course_add_form.html', {'student': student, 'form': form})
+
+
+@method_decorator([login_required, student_required], name='dispatch')
 class QuizListView(ListView):
     model = Quiz
     ordering = ('name', )
@@ -54,7 +87,7 @@ class QuizListView(ListView):
         student = self.request.user.student
         student_interests = student.interests.values_list('pk', flat=True)
         taken_quizzes = student.quizzes.values_list('pk', flat=True)
-        queryset = Quiz.objects.filter(subject__in=student_interests) \
+        queryset = Quiz.objects.all() \
             .exclude(pk__in=taken_quizzes) \
             .annotate(questions_count=Count('questions')) \
             .filter(questions_count__gt=0)
@@ -69,7 +102,7 @@ class TakenQuizListView(ListView):
 
     def get_queryset(self):
         queryset = self.request.user.student.taken_quizzes \
-            .select_related('quiz', 'quiz__subject') \
+            .select_related('quiz') \
             .order_by('quiz__name')
         return queryset
 

@@ -5,8 +5,8 @@
 {% block content %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change_list' %}">My Quizzes</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change' quiz.pk %}">{{ quiz.name }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change_list' course_pk %}">My Quizzes</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change' course_pk=course_pk pk=quiz.pk %}">{{ quiz.name }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ question.text }}</li>
     </ol>
   </nav>
@@ -58,7 +58,7 @@
       <small class="form-text text-muted">Your question may have at least <strong>2</strong> answers and maximum <strong>10</strong> answers. Select at least one correct answer.</small>
     </p>
     <button type="submit" class="btn btn-success">Save changes</button>
-    <a href="{% url 'teachers:quiz_change' quiz.pk %}" class="btn btn-outline-secondary" role="button">Nevermind</a>
-    <a href="{% url 'teachers:question_delete' quiz.pk question.pk %}" class="btn btn-danger float-right">Delete</a>
+    <a href="{% url 'teachers:quiz_change' course_pk=course_pk pk=quiz.pk %}" class="btn btn-outline-secondary" role="button">Nevermind</a>
+    <a href="{% url 'teachers:question_delete' course_pk quiz.pk question.pk %}" class="btn btn-danger float-right">Delete</a>
   </form>
 {% endblock %}

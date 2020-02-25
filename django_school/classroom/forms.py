@@ -54,6 +54,17 @@ class QuestionForm(forms.ModelForm):
         fields = ('text', )
 
 
+class CourseRegistrationForm(forms.ModelForm):
+    code = forms.CharField(max_length=255, required=True)
+
+    class Meta:
+        model = Student
+        fields = ('code', )
+
+    #def save(self):
+
+
+
 class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
     def clean(self):
         super().clean()
