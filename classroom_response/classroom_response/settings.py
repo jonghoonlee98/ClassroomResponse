@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.admin',
-    'reset_migrations',
 
     'crispy_forms',
 
