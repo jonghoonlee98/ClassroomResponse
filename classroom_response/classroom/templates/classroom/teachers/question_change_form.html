@@ -12,10 +12,14 @@
     </ol>
   </nav>
   <h2 class="mb-3">{{ question.text }}</h2>
-  <form method="post" novalidate>
+  <form method="post" novalidate enctype="multipart/form-data">
     {% csrf_token %}
     {{ formset.management_form }}
     {{ form|crispy }}
+    {% if question.image %}
+    <img src="{{ question.image.url }}" height="420">
+    <hr/>
+    {% endif %}
     <div class="card mb-3{% if formset.errors %} border-danger{% endif %}">
       <div class="card-header">
         <div class="row">
