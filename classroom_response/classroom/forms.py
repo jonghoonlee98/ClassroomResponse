@@ -52,7 +52,7 @@ class StudentInterestsForm(forms.ModelForm):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ('text', )
+        fields = ('text', 'image')
 
 
 class QuestionAddForm(forms.ModelForm):
@@ -61,7 +61,7 @@ class QuestionAddForm(forms.ModelForm):
 
     class Meta:
         model = Question
-        fields = ('text', 'Type', )#'image')
+        fields = ('text', 'Type', 'image')
 
 
 class CourseRegistrationForm(forms.ModelForm):

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils.html import escape, mark_safe
 
@@ -45,7 +46,8 @@ class Question(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
     text = models.CharField('Question', max_length=255)
     question_type = models.CharField('Type', max_length=255, default='MC')
-    #image = models.ImageField(upload_to='images/', default=None, blank=True, null=True)
+    image = models.ImageField(upload_to='images/', default=None, validators=[FileExtensionValidator(allowed_extensions=['jpeg', 'jpg', 'png'])], blank=True, null=True)
+
 
     def __str__(self):
         return self.text

@@ -209,7 +209,7 @@ def question_add(request, course_pk, pk):
     quiz = get_object_or_404(Quiz, pk=pk)
 
     if request.method == 'POST':
-        form = QuestionAddForm(request.POST)
+        form = QuestionAddForm(request.POST, request.FILES)
         if form.is_valid():
             question = form.save(commit=False)
             question.quiz = quiz
@@ -246,7 +246,7 @@ def question_change(request, course_pk, quiz_pk, question_pk):
     )
 
     if request.method == 'POST':
-        form = QuestionForm(request.POST, instance=question)
+        form = QuestionForm(request.POST, request.FILES, instance=question)
         formset = AnswerFormSet(request.POST, instance=question)
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():
