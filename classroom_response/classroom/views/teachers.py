@@ -221,16 +221,26 @@ def question_add(request, course_pk, pk):
 
     return render(request, 'classroom/teachers/question_add_form.html', {'quiz': quiz, 'form': form, 'course_pk': course_pk})
 
+@login_required
+@teacher_required
+def question_view(request, course_pk, quiz_pk, question_pk):
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
+    question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
+    answers = Answer.objects.filter(question=question)
+
+
+    return render(request, 'classroom/teachers/question_view.html', {
+        'quiz': quiz,
+        'question': question,
+        'course_pk': course_pk,
+        'course_name': Course.objects.get(pk=course_pk).name,
+        'answers': answers,
+    })
+
 
 @login_required
 @teacher_required
 def question_change(request, course_pk, quiz_pk, question_pk):
-    # Simlar to the `question_add` view, this view is also managing
-    # the permissions at object-level. By querying both `quiz` and
-    # `question` we are making sure only the owner of the quiz can
-    # change its details and also only questions that belongs to this
-    # specific quiz can be changed via this url (in cases where the
-    # user might have forged/player with the url params.
     quiz = get_object_or_404(Quiz, pk=quiz_pk)
     question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
 
@@ -253,7 +263,7 @@ def question_change(request, course_pk, quiz_pk, question_pk):
                 form.save()
                 formset.save()
             messages.success(request, 'Question and answers saved with success!')
-            return redirect('teachers:quiz_change', course_pk, quiz.pk)
+            return redirect('teachers:question_view', course_pk, quiz.pk, question_pk)
     else:
         form = QuestionForm(instance=question)
         formset = AnswerFormSet(instance=question)
