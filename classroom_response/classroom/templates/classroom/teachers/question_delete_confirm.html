@@ -5,9 +5,9 @@
 {% block content %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change_list' %}">My Quizzes</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change' quiz.pk %}">{{ quiz.name }}</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'teachers:question_change' quiz.pk question.pk %}">{{ question.text }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change_list' course_pk %}">My Quizzes</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change' course_pk=course_pk pk=quiz.pk %}">{{ quiz.name }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:question_change' course_pk quiz.pk question.pk %}">{{ question.text }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">Confirm deletion</li>
     </ol>
   </nav>
@@ -16,6 +16,6 @@
   <form method="post">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger btn-lg">Yes, I'm sure</button>
-    <a href="{% url 'teachers:question_change' quiz.pk question.pk %}" class="btn btn-outline-secondary btn-lg" role="button">Nevermind</a>
+    <a href="{% url 'teachers:question_change' course_pk quiz.pk question.pk %}" class="btn btn-outline-secondary btn-lg" role="button">Nevermind</a>
   </form>
 {% endblock %}

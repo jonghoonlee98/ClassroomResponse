@@ -25,7 +25,7 @@ class StudentSignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        return redirect('students:quiz_list')
+        return redirect('students:course_list')
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -65,11 +65,14 @@ def add_course(request):
     if request.method == 'POST':
         form = CourseRegistrationForm(request.POST)
         if form.is_valid():
-            course = Course.objects.filter(code=form.cleaned_data['code'])[0]
-            print(course.name)
-            student.courses.add(course)
-            messages.success(request, 'Successfully registered course!')
-            return redirect('students:course_list')
+            course = Course.objects.filter(code=form.cleaned_data['code'])
+            if len(course) == 0:
+                messages.error(request, 'No course matches the inputted code. Try again')
+                return redirect('students:course_add')
+            else:
+                student.courses.add(course[0])
+                messages.success(request, 'Successfully registered course!')
+                return redirect('students:course_list')
     else:
         form = CourseRegistrationForm()
 
