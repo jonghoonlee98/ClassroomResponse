@@ -3,6 +3,26 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+  <script>
+    var socket = new WebSocket('ws://' + window.location.host + '/classroom/');
+ 
+    socket.onopen = function open() {
+      console.log('WebSockets connection created.');
+    };
+ 
+    socket.onmessage = function message(event) {
+      console.log("data from socket:" + event.data);
+    };
+ 
+    if (socket.readyState == WebSocket.OPEN) {
+      socket.onopen();
+    }
+
+    function present(question_pk) {
+      socket.send('present' + question_pk);
+    }
+  </script>
+
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
@@ -27,11 +47,14 @@
   <div class="card">
     <div class="card-header">
       <div class="row">
-        <div class="col-10">
+        <div class="col-8">
           <strong>Questions</strong>
         </div>
         <div class="col-2">
           <strong>Answers</strong>
+        </div>
+        <div class="col-2">
+          <strong>Present</strong>
         </div>
       </div>
     </div>
@@ -39,11 +62,14 @@
       {% for question in questions %}
         <div class="list-group-item">
           <div class="row">
-            <div class="col-10">
+            <div class="col-8">
               <a href="{% url 'teachers:question_change' course_pk quiz.pk question.pk %}">{{ question.text }}</a>
             </div>
             <div class="col-2">
-              {{ question.answers_count }}
+              {{ question.answers_count }} 
+            </div>
+            <div class="col-2">
+              <button onclick="present({{ question.pk }})" class="btn btn-primary btn-sm">Present</button>
             </div>
           </div>
         </div>

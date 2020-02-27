@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <script>
+    var socket = new WebSocket('ws://' + window.location.host + '/classroom/');
+ 
+    socket.onopen = function open() {
+      console.log('WebSockets connection created.');
+    };
+ 
+    socket.onmessage = function message(event) {
+      console.log("data from socket:" + event.data);
+      if (event.data != "connected") {
+        lbl.innerText = event.data;
+      }
+    };
+ 
+    if (socket.readyState == WebSocket.OPEN) {
+      socket.onopen();
+    }
+  </script>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'students:course_list' %}">Courses</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ course.name }}</li>
+    </ol>
+  </nav>
+  <h2>{{ course.name }}</h2>
+  <div class="card" id="lbl">
+    Please wait for a question
+  </div>
+
+{% endblock %}

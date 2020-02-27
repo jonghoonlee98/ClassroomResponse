@@ -56,6 +56,15 @@ class CourseListView(ListView):
         queryset = Course.objects.filter(id__in=course_list)
         return queryset
 
+@login_required
+@student_required
+def course(request, pk):
+    course = get_object_or_404(Course, pk=pk)
+
+    return render(request, 'classroom/students/course.html', {
+        'course': course,
+    })
+
 
 @login_required
 @student_required
