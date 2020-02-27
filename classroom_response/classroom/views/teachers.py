@@ -241,7 +241,7 @@ def question_change(request, course_pk, quiz_pk, question_pk):
         fields=('text', 'is_correct'),
         min_num=2,
         validate_min=True,
-        max_num=10,
+        max_num=5,
         validate_max=True
     )
 

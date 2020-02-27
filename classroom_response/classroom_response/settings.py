@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
 
     'crispy_forms',
-
+    'channels',
     'classroom',
 ]
 
@@ -142,6 +142,19 @@ MESSAGE_TAGS = {
 
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'media') 
 MEDIA_URL = '/media/'
+
+
+# Channels
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            'hosts': [('localhost', 6379)],
+        },
+        "ROUTING": "classroom_response.routing.channel_routing",
+    },
+}
 
 
 
