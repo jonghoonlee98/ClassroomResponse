@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block content %}
+  <script>
+    var socket = new WebSocket('ws://' + window.location.host + '/classroom/');
+ 
+    socket.onopen = function open() {
+      console.log('WebSockets connection created.');
+    };
+ 
+    socket.onmessage = function message(event) {
+      console.log("data from socket:" + event.data);
+    };
+ 
+    if (socket.readyState == WebSocket.OPEN) {
+      socket.onopen();
+    }
+
+    function present(question_pk, course_pk) {
+      var msg = {
+        type: 'present',
+        question_pk: question_pk,
+        course_pk: course_pk
+      }
+      socket.send(JSON.stringify(msg));
+    }
+  </script>
+  
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:course_change' course_pk %}">{{ course_name }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change' course_pk=course_pk pk=quiz.pk %}">{{ quiz.name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ question.text }}</li>
+    </ol>
+  </nav>
+  <h2 class="mb-3">{{ question.text }}</h2>
+           
+  <button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-primary float-left">Present</button>
+      
+  <br/>
+  <br/>
+  {% if question.image %}
+  <img src="{{ question.image.url }}" height="420"/>
+  <hr/>
+  {% endif %}
+  <div class="card mb-3">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-10">
+          <strong>Answers</strong>
+        </div>
+        <div class="col-2">
+          <strong>Correct?</strong>
+        </div>
+      </div>
+    </div>
+    <div class="list-group list-group-flush list-group-formset">
+      {% for answer in answers %}
+        <div class="list-group-item">
+          <div class="row">
+            <div class="col-10">
+              {{ answer.text }}
+            </div>
+            <div class="col-2">
+              {{ answer.is_correct }}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <a href="{% url 'teachers:question_change' course_pk quiz.pk question.pk %}" class="btn btn-info float-left">Edit</a>
+  <a href="{% url 'teachers:question_delete' course_pk quiz.pk question.pk %}" class="btn btn-danger float-right">Delete Question</a>
+
+{% endblock %}

@@ -8,7 +8,8 @@
       <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
       <li class="breadcrumb-item"><a href="{% url 'teachers:course_change' course_pk %}">{{ course_name }}</a></li>
       <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change' course_pk=course_pk pk=quiz.pk %}">{{ quiz.name }}</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ question.text }}</li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:question_view' course_pk=course_pk quiz_pk=quiz.pk question_pk=question.pk %}">{{ question.text }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit question</li>
     </ol>
   </nav>
   <h2 class="mb-3">{{ question.text }}</h2>

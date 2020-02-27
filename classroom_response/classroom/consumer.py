@@ -2,37 +2,34 @@ from channels import Group
 from classroom.models import *
 import threading
 import random
+import json
  
-def sendmsg(num):
-    Group('classroom').send({'text':num})
- 
-t = 0
- 
-def periodic():
-    global t;
-    n = random.randint(10,200);
-    sendmsg(str(n))
-    t = threading.Timer(5, periodic)
-    t.start()
  
 def ws_message(message):
-    global t
-    print(message.content['text'])
-    if ( message.content['text'] == 'start'):
-        periodic()
-    elif ( message.content['text'].startswith('present')):
-        question_pk = message.content['text'].split("present")[1]
-        print(question_pk)
+    data = json.loads(message.content['text'])
+    print(data)
+    if (data['type'] == 'present'):
+        question_pk = data['question_pk']
         question = Question.objects.get(pk=question_pk)
-        Group('classroom').send({'text':question.text})
-    else:
-        t.cancel()
+        send_data = {
+            'type': 'present',
+            'text': question.text,
+            'course_pk': data['course_pk']
+        }
+        Group('classroom').send({'text':json.dumps(send_data)})
+
  
 def ws_connect(message):
     Group('classroom').add(message.reply_channel)
-    Group('classroom').send({'text':'connected'})
+    send_data = {
+        'type:': 'connected'
+    }
+    Group('classroom').send({'text':json.dumps(send_data)})
  
  
 def ws_disconnect(message):
-    Group('classroom').send({'text':'disconnected'})
+    send_data = {
+        'type:': 'disconnected'
+    }
+    Group('classroom').send({'text':json.dumps(send_data)})
     Group('classroom').discard(message.reply_channel)

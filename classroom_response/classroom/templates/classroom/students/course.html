@@ -10,7 +10,8 @@
  
     socket.onmessage = function message(event) {
       console.log("data from socket:" + event.data);
-      if (event.data != "connected") {
+      var msg = JSON.parse(event.data);
+      if (msg['type'] == 'present' && msg['course_pk'] == {{ course.pk }}) {
         lbl.innerText = event.data;
       }
     };
