@@ -11,7 +11,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
 from ..decorators import teacher_required
-from ..forms import BaseAnswerInlineFormSet, QuestionForm, TeacherSignUpForm
+from ..forms import BaseAnswerInlineFormSet, QuestionForm, QuestionAddForm, TeacherSignUpForm
 from ..models import Answer, Question, Quiz, User, Course
 
 
@@ -27,7 +27,7 @@ class TeacherSignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        return redirect('teachers:quiz_change_list')
+        return redirect('teachers:course_change_list')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -66,6 +66,8 @@ class CourseUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         kwargs['quizzes'] = self.get_object().quizzes.annotate(questions_count=Count('questions'))
+        kwargs['code'] = self.get_object().code
+        print(self.get_object().code)
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
@@ -130,6 +132,7 @@ class QuizUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         quiz = self.get_object()
         kwargs['course_pk'] = self.kwargs['course_pk']
+        kwargs['course_name'] = Course.objects.get(pk=self.kwargs['course_pk']).name
         kwargs['quiz_pk'] = self.kwargs['pk']
         kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))
         return super().get_context_data(**kwargs)
@@ -206,7 +209,7 @@ def question_add(request, course_pk, pk):
     quiz = get_object_or_404(Quiz, pk=pk)
 
     if request.method == 'POST':
-        form = QuestionForm(request.POST)
+        form = QuestionAddForm(request.POST)
         if form.is_valid():
             question = form.save(commit=False)
             question.quiz = quiz
@@ -214,7 +217,7 @@ def question_add(request, course_pk, pk):
             messages.success(request, 'You may now add answers/options to the question.')
             return redirect('teachers:question_change', course_pk, quiz.pk, question.pk)
     else:
-        form = QuestionForm()
+        form = QuestionAddForm()
 
     return render(request, 'classroom/teachers/question_add_form.html', {'quiz': quiz, 'form': form, 'course_pk': course_pk})
 
@@ -260,7 +263,8 @@ def question_change(request, course_pk, quiz_pk, question_pk):
         'question': question,
         'form': form,
         'formset': formset,
-        'course_pk': course_pk
+        'course_pk': course_pk,
+        'course_name': Course.objects.get(pk=course_pk).name
     })
 
 
@@ -274,6 +278,7 @@ class QuestionDeleteView(DeleteView):
     def get_context_data(self, **kwargs):
         question = self.get_object()
         kwargs['quiz'] = question.quiz
+        kwargs['course_pk'] = self.kwargs['course_pk']
         return super().get_context_data(**kwargs)
 
     def delete(self, request, *args, **kwargs):
@@ -282,8 +287,8 @@ class QuestionDeleteView(DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_queryset(self):
-        return Question.objects.filter(quiz__owner=self.request.user)
+        return Question.objects.filter(quiz__course__owner=self.request.user)
 
     def get_success_url(self):
         question = self.get_object()
-        return reverse('teachers:quiz_change', kwargs={'pk': question.quiz_id})
+        return reverse('teachers:quiz_change', kwargs={'pk': question.quiz_id, 'course_pk': self.kwargs['course_pk']})
