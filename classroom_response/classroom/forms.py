@@ -10,6 +10,7 @@ from classroom.models import (Answer, Question, Student, StudentAnswer,
 class TeacherSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
+        fields = ('username', 'first_name', 'last_name', )
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -28,6 +29,7 @@ class StudentSignUpForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
+        fields = ('username', 'first_name', 'last_name', )
 
     @transaction.atomic
     def save(self):
@@ -47,11 +49,19 @@ class StudentInterestsForm(forms.ModelForm):
             'interests': forms.CheckboxSelectMultiple
         }
 
-
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ('text', )
+
+
+class QuestionAddForm(forms.ModelForm):
+    CHOICES = [('1', 'Multiple Choice'), ('2', 'Numeric')]
+    Type = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES)
+
+    class Meta:
+        model = Question
+        fields = ('text', 'Type', )#'image')
 
 
 class CourseRegistrationForm(forms.ModelForm):
@@ -60,8 +70,6 @@ class CourseRegistrationForm(forms.ModelForm):
     class Meta:
         model = Student
         fields = ('code', )
-
-    #def save(self):
 
 
 
