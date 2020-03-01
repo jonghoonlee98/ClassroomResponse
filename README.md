@@ -25,7 +25,7 @@ How to run the application:
 * Resource: https://channels.readthedocs.io/en/latest/topics/consumers.html
 	
 
-** Commit **"added student-side response to professor-side"** -- Roy
+**Commit "added student-side response to professor-side"** -- Roy
 * Implementation: 
 	* students send back answers by pressing submit button.
 		* student sends "answer" type message to the professor
@@ -33,8 +33,7 @@ How to run the application:
 * Test:
 	* when jlee01 pressed the 'submit' button, professor browser displayed student response on console
 
-------------------------- BLOCKED, NOT COMMITTED -------------------------
-** Commit **"present question to late student (Bug Fix)"** -- Roy
+** BLOCKED, NOT COMMITTED "present question to late student (Bug Fix)"** -- Roy
 * Implementation: 
 	* when student joins after professor presses present button, they can't see the question.
 	* added a hash map that stores course_name -> question_text in consumer.py
