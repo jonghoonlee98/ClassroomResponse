@@ -11,7 +11,7 @@ How to run the application:
 7. python3 manage.py migrate classroom
 
 
-Commit "adding groups by classname" -- Roy
+**Commit "adding groups by classname"** -- Roy
 * when sockets connect, they are added to group based on their class name
 	* example group name: message.content['path'] = /classroom/ES4/, then the group name is message.content['path'].split('/')[-2]. Refer to consumer.py
 * Test:
