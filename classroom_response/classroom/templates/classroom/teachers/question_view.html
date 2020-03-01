@@ -9,6 +9,8 @@
     socket.onopen = function open() {
       console.log('WebSockets connection created.');
     };
+
+    socket.onclose
  
     socket.onmessage = function message(event) {
       console.log("data from socket:" + event.data);
@@ -19,6 +21,9 @@
     }
 
     function present(question_pk, course_pk) {
+      $("#present").hide();
+      $("#stop").show()
+
       var msg = {
         type: 'present',
         question_pk: question_pk,
@@ -26,8 +31,21 @@
       }
       socket.send(JSON.stringify(msg));
     }
+
+    function stop(question_pk, course_pk) {
+      $("#stop").hide();
+      $("#present").show();
+      
+      var msg = {
+        type: 'stop',
+        question_pk: question_pk,
+        course_pk: course_pk
+      }
+      socket.send(JSON.stringify(msg));
+    }
+
   </script>
-  
+
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
@@ -37,42 +55,49 @@
     </ol>
   </nav>
   <h2 class="mb-3">{{ question.text }}</h2>
-           
-  <button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-primary float-left">Present</button>
-      
+ 
+  {% if not question.is_active %}      
+  <a id="present" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank"><button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-primary float-left">Present</button></a>
+  <a id="stop" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank" style="display:none"><button onclick="stop({{ question.pk }}, {{ course_pk }})" class="btn btn-danger float-left">Stop</button></a>
+  {% else %}
+  <a id="present" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank" style="display:none"><button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-primary float-left">Present</button></a>
+  <a id="stop" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank"><button onclick="stop({{ question.pk }}, {{ course_pk }})" class="btn btn-danger float-left">Stop</button></a>
+  {% endif %}
   <br/>
   <br/>
   {% if question.image %}
   <img src="{{ question.image.url }}" height="420"/>
   <hr/>
   {% endif %}
-  <div class="card mb-3">
-    <div class="card-header">
-      <div class="row">
-        <div class="col-10">
-          <strong>Answers</strong>
-        </div>
-        <div class="col-2">
-          <strong>Correct?</strong>
-        </div>
-      </div>
-    </div>
-    <div class="list-group list-group-flush list-group-formset">
-      {% for answer in answers %}
-        <div class="list-group-item">
-          <div class="row">
-            <div class="col-10">
-              {{ answer.text }}
-            </div>
-            <div class="col-2">
-              {{ answer.is_correct }}
-            </div>
+  <div id="answers">
+    <div class="card mb-3">
+      <div class="card-header">
+        <div class="row">
+          <div class="col-10">
+            <strong>Answers</strong>
+          </div>
+          <div class="col-2">
+            <strong>Correct?</strong>
           </div>
         </div>
-      {% endfor %}
+      </div>
+      <div class="list-group list-group-flush list-group-formset">
+        {% for answer in answers %}
+          <div class="list-group-item">
+            <div class="row">
+              <div class="col-10">
+                {{ answer.text }}
+              </div>
+              <div class="col-2">
+                {{ answer.is_correct }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     </div>
+    <a href="{% url 'teachers:question_change' course_pk quiz.pk question.pk %}" class="btn btn-info float-left">Edit</a>
+    <a href="{% url 'teachers:question_delete' course_pk quiz.pk question.pk %}" class="btn btn-danger float-right">Delete Question</a>
   </div>
-  <a href="{% url 'teachers:question_change' course_pk quiz.pk question.pk %}" class="btn btn-info float-left">Edit</a>
-  <a href="{% url 'teachers:question_delete' course_pk quiz.pk question.pk %}" class="btn btn-danger float-right">Delete Question</a>
 
 {% endblock %}

@@ -10,7 +10,7 @@ from django.views.generic import CreateView, ListView, UpdateView
 
 from ..decorators import student_required
 from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm, CourseRegistrationForm
-from ..models import Quiz, Student, TakenQuiz, User, Course
+from ..models import Quiz, Student, TakenQuiz, User, Course, Question
 
 
 class StudentSignUpView(CreateView):
@@ -56,10 +56,25 @@ class CourseListView(ListView):
         queryset = Course.objects.filter(id__in=course_list)
         return queryset
 
+
 @login_required
 @student_required
 def course(request, pk):
     course = get_object_or_404(Course, pk=pk)
+    questions = Question.objects.filter(quiz__course=course)
+    print(questions)
+
+    print(request.user.pk)
+    if request.method == 'POST':
+        print(request.POST)
+        return redirect('students:course', pk)
+
+    for q in questions:
+        if q.is_active:
+            return render(request, 'classroom/students/course.html', {
+                'course': course,
+                'question': q
+            })
 
     return render(request, 'classroom/students/course.html', {
         'course': course,
