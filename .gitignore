@@ -102,3 +102,4 @@ ENV/
 
 *.sqlite3
 *migrations/
+dump.rdb

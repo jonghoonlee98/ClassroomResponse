@@ -2,17 +2,38 @@
 
 {% block content %}
   <script>
-    var socket = new WebSocket('ws://' + window.location.host + '/classroom/{{course.name}}/');
- 
+    var socket = new WebSocket('ws://' + window.location.host + '/classroom/{{course.pk}}/');
+
     socket.onopen = function open() {
       console.log('WebSockets connection created.');
+      if ({{ question.pk }}) {
+        var msg = {
+            type: 'present',
+            question_pk: {{ question.pk }},
+            course_pk: {{ course.pk }},
+            course_name: "{{ course.name }}"
+          }
+        socket.send(JSON.stringify(msg));
+      }
     };
  
     socket.onmessage = function message(event) {
       console.log("data from socket:" + event.data);
       var msg = JSON.parse(event.data);
-      if (msg['type'] == 'present' && msg['course_pk'] == {{ course.pk }}) {
-        lbl.innerText = event.data;
+      if (msg['type'] == 'present') {
+        $("#answer").empty();
+        $("#answer").append("<p>Please answer the question.</p>")
+        $("#submit_answer").show();
+        if (msg['question_type'] == 'MC') {
+          choices = JSON.parse(msg['answers']);
+          for (var i = 0; i < choices.length; i++) {
+            console.log(choices[i]);
+            $("#answer").append("<input type='radio' name='student_answer' value=" + choices[i].pk + " required> " + choices[i].fields['text'] + "</input><br/>");
+          }
+        }
+      } else if (msg['type'] == 'stop') {
+        answer.innerText = "Please wait for a question";
+        $("#submit_answer").hide();
       }
     };
 
@@ -36,10 +57,13 @@
       <li class="breadcrumb-item active" aria-current="page">{{ course.name }}</li>
     </ol>
   </nav>
-  <h2>{{ course.name }}</h2>
-  <div class="card" id="lbl">
-    Please wait for a question
-  </div>
-  <button onclick="submitAnswer('{{ firstname }} {{ lastname }}')" class="btn btn-primary float-left">Submit</button>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group" id="answer">
+      Please wait for a question.
+    </div>
+    <button id="submit_answer" onclick="submitAnswer('{{ firstname }} {{ lastname }}')" type="submit" class="btn btn-primary" style="display:none">Submit</button>
+  </form> 
+
 
 {% endblock %}

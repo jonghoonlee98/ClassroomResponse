@@ -31,5 +31,7 @@ urlpatterns = [
         path('course/<int:course_pk>/quiz/<int:quiz_pk>/question/<int:question_pk>/', teachers.question_view, name='question_view'),
         path('course/<int:course_pk>/quiz/<int:quiz_pk>/question/<int:question_pk>/change/', teachers.question_change, name='question_change'),
         path('course/<int:course_pk>/quiz/<int:quiz_pk>/question/<int:question_pk>/delete/', teachers.QuestionDeleteView.as_view(), name='question_delete'),
+        path('course/<int:course_pk>/quiz/<int:quiz_pk>/question/<int:question_pk>/activate/', teachers.question_activate, name='question_activate'),
+        path('course/<int:course_pk>/quiz/<int:quiz_pk>/question/<int:question_pk>/deactivate/', teachers.question_deactivate, name='question_deactivate'),
     ], 'classroom'), namespace='teachers')),
 ]

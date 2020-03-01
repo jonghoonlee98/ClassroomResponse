@@ -1,0 +1,8 @@
+{% block content %}
+  <h1 class="mb-3" style="font-size:50px">{{ question.text }}</h1>
+           
+  {% if question.image %}
+  <img src="{{ question.image.url }}" height="600"/>
+  {% endif %}
+
+{% endblock %}

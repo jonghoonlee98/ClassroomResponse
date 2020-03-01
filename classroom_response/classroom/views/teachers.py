@@ -7,6 +7,7 @@ from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
+from django.http import HttpResponse
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
@@ -49,7 +50,6 @@ class CourseCreateView(CreateView):
     template_name = 'classroom/teachers/course_add_form.html'
 
     def form_valid(self, form):
-        print("Coursesss")
         course = form.save(commit=False)
         course.owner = self.request.user
         course.save()
@@ -276,6 +276,30 @@ def question_change(request, course_pk, quiz_pk, question_pk):
         'course_pk': course_pk,
         'course_name': Course.objects.get(pk=course_pk).name
     })
+
+
+@login_required
+@teacher_required
+def question_activate(request, course_pk, quiz_pk, question_pk):
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
+    question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
+    all_questions = Question.objects.filter(quiz__course__owner=request.user)
+
+    all_questions.update(is_active=False)
+
+    question.is_active = True
+    question.save()
+
+    return render(request, 'classroom/teachers/question_active.html', {
+        'quiz': quiz,
+        'question': question,
+    })
+
+
+@login_required
+@teacher_required
+def question_deactivate(request, course_pk, quiz_pk, question_pk):
+    return HttpResponse(request.POST['text'])
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
