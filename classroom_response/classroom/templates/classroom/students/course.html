@@ -15,6 +15,15 @@
         lbl.innerText = event.data;
       }
     };
+
+    function submitAnswer(name) {
+      var msg = {
+        type: 'answer',
+        name: name
+      }
+      console.log("sending: " + JSON.stringify(msg))
+      socket.send(JSON.stringify(msg));
+    }
  
     if (socket.readyState == WebSocket.OPEN) {
       socket.onopen();
@@ -31,5 +40,6 @@
   <div class="card" id="lbl">
     Please wait for a question
   </div>
+  <button onclick="submitAnswer('{{ firstname }} {{ lastname }}')" class="btn btn-primary float-left">Submit</button>
 
 {% endblock %}
