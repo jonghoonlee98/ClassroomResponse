@@ -26,6 +26,7 @@ How to run the application:
 ** Commit **"added student-side response to professor-side"** -- Roy
 * Implementation: 
 	* students send back answers by pressing submit button.
+		* student sends "answer" type message to the professor
 		* ***professor-side response seeing not implemented yet***
 * Test:
 	* when jlee01 pressed the 'submit' button, professor browser displayed student response on console
