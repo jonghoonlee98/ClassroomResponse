@@ -4,8 +4,8 @@
 
 {% block content %}
   <script>
-    var socket = new WebSocket('ws://' + window.location.host + '/classroom/');
- 
+    var socket = new WebSocket('ws://' + window.location.host + '/classroom/{{course_pk}}/');
+
     socket.onopen = function open() {
       console.log('WebSockets connection created.');
     };
@@ -27,8 +27,10 @@
       var msg = {
         type: 'present',
         question_pk: question_pk,
-        course_pk: course_pk
+        course_pk: course_pk,
+        course_name: '{{course_name}}'
       }
+      console.log("sending: " + JSON.stringify(msg))
       socket.send(JSON.stringify(msg));
     }
 

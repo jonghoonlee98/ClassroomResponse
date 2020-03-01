@@ -61,6 +61,7 @@ class CourseListView(ListView):
 @student_required
 def course(request, pk):
     course = get_object_or_404(Course, pk=pk)
+
     questions = Question.objects.filter(quiz__course=course)
     print(questions)
 
@@ -76,8 +77,10 @@ def course(request, pk):
                 'question': q
             })
 
+    student = request.user.student
+
     return render(request, 'classroom/students/course.html', {
-        'course': course,
+        'course': course, 'firstname': student.user.first_name, 'lastname': student.user.last_name,
     })
 
 
