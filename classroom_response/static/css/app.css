@@ -65,3 +65,15 @@ footer a {
 .has-danger .invalid-feedback {
   display: block;
 }
+
+.astext {
+  background:none;
+  border:none;
+  margin:0;
+  padding:0;
+  cursor: pointer;
+}
+
+li {
+  list-style: none;
+}

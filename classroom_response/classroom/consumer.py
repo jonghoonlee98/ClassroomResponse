@@ -30,17 +30,33 @@ def ws_message(message):
                 'type': 'present',
                 'question_type': 'MC',
                 'text': question.text,
-                'course_pk': data['course_pk'],
-                'answers': serializers.serialize('json', answers)
+                'answers': serializers.serialize('json', answers),
+                'question_pk': question_pk
             }
             Group(get_classname(message)).send({'text':json.dumps(send_data)})
+        elif question.question_type == 'NU':
+            answers = Answer.objects.filter(question = question)
+            units = None
+            if len(answers):
+                data = json.loads(answers[0].data)
+                answer = data['answer']
+                if 'units' in data:
+                    units = data['units']
+            send_data = {
+                'type': 'present',
+                'question_type': 'NU',
+                'text': question.text,
+                'units': units,
+                'question_pk': question_pk
+            }
+            Group(get_classname(message)).send({'text':json.dumps(send_data)})
+
     elif (data['type'] == 'stop'):
         question_pk = data['question_pk']
         question = Question.objects.get(pk=question_pk)
         send_data = {
             'type': 'stop',
             'text': question.text,
-            'course_pk': data['course_pk'],
             'course_name': course_name
         }
         Group(get_classname(message)).send({'text':json.dumps(send_data)})

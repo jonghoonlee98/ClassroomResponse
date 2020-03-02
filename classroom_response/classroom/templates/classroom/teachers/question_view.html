@@ -71,6 +71,8 @@
   <img src="{{ question.image.url }}" height="420"/>
   <hr/>
   {% endif %}
+
+  {% if question.question_type == 'MC' %}
   <div id="answers">
     <div class="card mb-3">
       <div class="card-header">
@@ -98,8 +100,39 @@
         {% endfor %}
       </div>
     </div>
-    <a href="{% url 'teachers:question_change' course_pk quiz.pk question.pk %}" class="btn btn-info float-left">Edit</a>
-    <a href="{% url 'teachers:question_delete' course_pk quiz.pk question.pk %}" class="btn btn-danger float-right">Delete Question</a>
   </div>
+
+  {% elif question.question_type == 'NU' %}
+  <div id="answers">
+    <div class="card mb-3">
+      <div class="card-header">
+        <div class="row">
+          <div class="col-10">
+            <strong>Answer</strong>
+          </div>
+          <div class="col-2">
+            <strong>Unit</strong>
+          </div>
+        </div>
+      </div>
+      <div class="list-group list-group-flush list-group-formset">
+        <div class="list-group-item">
+          <div class="row">
+            <div class="col-10">
+              {{ answer }}
+            </div>
+            <div class="col-2">
+              {{ correct_unit }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% endif %}
+
+  <a href="{% url 'teachers:question_change' course_pk quiz.pk question.pk %}" class="btn btn-info float-left">Edit</a>
+  <a href="{% url 'teachers:question_delete' course_pk quiz.pk question.pk %}" class="btn btn-danger float-right">Delete Question</a>
 
 {% endblock %}

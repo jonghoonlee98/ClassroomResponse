@@ -3,6 +3,30 @@
 {% load crispy_forms_tags crispy_forms_filters %}
 
 {% block content %}
+  <script>
+    function add_unit() {
+      if ($("#unit").val().length > 0) {
+        $("#possible_units").append("<li><input class='units' type='radio' name='units' value='" + $("#unit").val() + "' required> " + $("#unit").val() + "<li/>");
+        $("#unit").val('');
+      }
+    }
+
+    $(document).ready(function(){
+      $("#form").submit( function(eventObj) {
+        $( ".units" ).each(function( index ) {
+          if (!($(this).is(':checked'))) {
+            $("<input />").attr("type", "hidden")
+              .attr("name", "units")
+              .attr("value", $(this).val())
+              .appendTo("#form");
+          }
+        });
+          return true;
+      });
+    });
+  </script>
+
+
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
@@ -13,7 +37,7 @@
     </ol>
   </nav>
   <h2 class="mb-3">{{ question.text }}</h2>
-  <form method="post" novalidate enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data" id="form">
     {% csrf_token %}
     {{ formset.management_form }}
     {{ form|crispy }}
@@ -21,6 +45,8 @@
     <img src="{{ question.image.url }}" height="420">
     <hr/>
     {% endif %}
+
+    {% if question.question_type == 'MC' %}
     <div class="card mb-3{% if formset.errors %} border-danger{% endif %}">
       <div class="card-header">
         <div class="row">
@@ -60,6 +86,25 @@
         {% endfor %}
       </div>
     </div>
+
+    {% elif question.question_type == 'NU' %}
+    <div>
+      Answer: <input type='text' name='correct_answer' value='{{ answer }}' required></input><br/><br/>
+      Select a correct unit (optional):<br/>
+      <ul id="possible_units">
+        {% for u in units %}
+          {% if u == correct_unit %}
+          <li><input class='units' type='radio' name='units' value='{{ u }}' required checked="checked"> {{ u }}<li/>
+          {% else %}
+          <li><input class='units' type='radio' name='units' value='{{ u }}' required> {{ u }}<li/>
+          {% endif %}
+        {% endfor %}
+      </ul>
+      <input id="unit" type='text' size='10'" ></input> <button onclick="add_unit();" type='button' class="btn btn-primary btn-sm">Add Unit</button>
+    </div>
+
+    {% endif %} 
+    <hr/>
     <button type="submit" class="btn btn-success">Save changes</button>
     <a href="{% url 'teachers:question_delete' course_pk quiz.pk question.pk %}" class="btn btn-danger float-right">Delete Question</a>
   </form>

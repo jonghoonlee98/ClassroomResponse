@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils.html import escape, mark_safe
+import jsonfield
 
 
 class User(AbstractUser):
@@ -55,8 +56,9 @@ class Question(models.Model):
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
-    text = models.CharField('Answer', max_length=255)
+    text = models.CharField('Answer', max_length=255, null=True)
     is_correct = models.BooleanField('Correct answer', default=False)
+    data = jsonfield.JSONField(null=True)
 
     def __str__(self):
         return self.text
@@ -92,3 +94,4 @@ class TakenQuiz(models.Model):
 class StudentAnswer(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='quiz_answers')
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='+')
+    submission = jsonfield.JSONField(null=True)

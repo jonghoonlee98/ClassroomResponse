@@ -63,9 +63,9 @@ def course(request, pk):
     course = get_object_or_404(Course, pk=pk)
 
     questions = Question.objects.filter(quiz__course=course)
-    print(questions)
+    #print(questions)
 
-    print(request.user.pk)
+    #print(request.user.pk)
     if request.method == 'POST':
         print(request.POST)
         return redirect('students:course', pk)
@@ -75,7 +75,7 @@ def course(request, pk):
             return render(request, 'classroom/students/course.html', {
                 'course': course,
                 'question': q
-            })
+            })  
 
     student = request.user.student
 

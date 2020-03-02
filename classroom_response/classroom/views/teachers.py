@@ -15,6 +15,8 @@ from ..decorators import teacher_required
 from ..forms import BaseAnswerInlineFormSet, QuestionForm, QuestionAddForm, TeacherSignUpForm
 from ..models import Answer, Question, Quiz, User, Course
 
+import json
+
 
 class TeacherSignUpView(CreateView):
     model = User
@@ -213,6 +215,7 @@ def question_add(request, course_pk, pk):
         if form.is_valid():
             question = form.save(commit=False)
             question.quiz = quiz
+            question.question_type = request.POST.get("Type", None)
             question.save()
             messages.success(request, 'You may now add answers/options to the question.')
             return redirect('teachers:question_change', course_pk, quiz.pk, question.pk)
@@ -228,15 +231,36 @@ def question_view(request, course_pk, quiz_pk, question_pk):
     question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
     answers = Answer.objects.filter(question=question)
 
+    if question.question_type == 'MC':
+        return render(request, 'classroom/teachers/question_view.html', {
+            'quiz': quiz,
+            'question': question,
+            'course_pk': course_pk,
+            'course_name': Course.objects.get(pk=course_pk).name,
+            'answers': answers,
+        })
+    elif question.question_type == 'NU':
+        answers = Answer.objects.filter(question=question)
 
-    return render(request, 'classroom/teachers/question_view.html', {
-        'quiz': quiz,
-        'question': question,
-        'course_pk': course_pk,
-        'course_name': Course.objects.get(pk=course_pk).name,
-        'answers': answers,
-    })
+        answer = ''
+        units = None
+        correct_unit = None
 
+        if len(answers):
+            data = json.loads(answers[0].data)
+            answer = data['answer']
+            if 'units' in data:
+                units = data['units']
+                correct_unit = data['correct_unit']
+                
+        return render(request, 'classroom/teachers/question_view.html', {
+            'quiz': quiz,
+            'question': question,
+            'course_pk': course_pk,
+            'course_name': Course.objects.get(pk=course_pk).name,
+            'answer': answer,
+            'correct_unit': correct_unit
+        })
 
 @login_required
 @teacher_required
@@ -256,27 +280,80 @@ def question_change(request, course_pk, quiz_pk, question_pk):
     )
 
     if request.method == 'POST':
-        form = QuestionForm(request.POST, request.FILES, instance=question)
-        formset = AnswerFormSet(request.POST, instance=question)
-        if form.is_valid() and formset.is_valid():
-            with transaction.atomic():
-                form.save()
-                formset.save()
-            messages.success(request, 'Question and answers saved with success!')
-            return redirect('teachers:question_view', course_pk, quiz.pk, question_pk)
+        if question.question_type == 'MC':
+            form = QuestionForm(request.POST, request.FILES, instance=question)
+            formset = AnswerFormSet(request.POST, instance=question)
+            if form.is_valid() and formset.is_valid():
+                with transaction.atomic():
+                    form.save()
+                    formset.save()
+                messages.success(request, 'Question and answers saved with success!')
+                return redirect('teachers:question_view', course_pk, quiz.pk, question_pk)
+        elif question.question_type == 'NU':
+            form = QuestionForm(request.POST, request.FILES, instance=question)
+            if form.is_valid():
+                with transaction.atomic():
+                    form.save()
+                answer = request.POST.get('correct_answer', None)
+                units = request.POST.getlist('units')
+                print(request.POST)
+                print(units)
+                print(answer)
+                Answer.objects.filter(question=question).delete()
+                if len(units):           
+                    data = {
+                        'answer': answer,
+                        'units': units,
+                        'correct_unit': units[0]
+                    }
+                else:
+                    data = {
+                        'answer': answer
+                    }
+                answer = Answer(data=json.dumps(data), question=question)
+                answer.save()
+                messages.success(request, 'Question and answers saved with success!')
+                return redirect('teachers:question_view', course_pk, quiz.pk, question_pk)
+
     else:
         form = QuestionForm(instance=question)
         formset = AnswerFormSet(instance=question)
 
-    return render(request, 'classroom/teachers/question_change_form.html', {
-        'quiz': quiz,
-        'question': question,
-        'form': form,
-        'formset': formset,
-        'course_pk': course_pk,
-        'course_name': Course.objects.get(pk=course_pk).name
-    })
+    if question.question_type == 'MC':
+        return render(request, 'classroom/teachers/question_change_form.html', {
+            'quiz': quiz,
+            'question': question,
+            'form': form,
+            'formset': formset,
+            'course_pk': course_pk,
+            'course_name': Course.objects.get(pk=course_pk).name,
+        })
 
+    elif question.question_type == 'NU':
+        answers = Answer.objects.filter(question=question)
+
+        answer = ''
+        units = None
+        correct_unit = None
+
+        if len(answers):
+            data = json.loads(answers[0].data)
+            answer = data['answer']
+            if 'units' in data:
+                units = data['units']
+                correct_unit = data['correct_unit']
+                print(correct_unit)
+
+        return render(request, 'classroom/teachers/question_change_form.html', {
+            'quiz': quiz,
+            'question': question,
+            'form': form,
+            'course_pk': course_pk,
+            'course_name': Course.objects.get(pk=course_pk).name,
+            'answer': answer,
+            'units': units,
+            'correct_unit': correct_unit
+        })
 
 @login_required
 @teacher_required

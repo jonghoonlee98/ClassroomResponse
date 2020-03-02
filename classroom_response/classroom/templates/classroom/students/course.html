@@ -30,6 +30,15 @@
             console.log(choices[i]);
             $("#answer").append("<input type='radio' name='student_answer' value=" + choices[i].pk + " required> " + choices[i].fields['text'] + "</input><br/>");
           }
+        } else if (msg['question_type'] == 'NU') {
+          $("#answer").append("<input type='text' name='student_answer' value='{{ answer }}' required></input> ");
+          if (msg['units'].length) {
+            $("#answer").append("<select id='units' name='unit'>");
+            for (var i = 0; i < msg['units'].length; i++) {
+              $("#units").append("<option value='" + msg['units'][i] + "'>" + msg['units'][i] + "</option>");
+            }
+            $("#answer").append("</select>");
+          }
         }
       } else if (msg['type'] == 'stop') {
         answer.innerText = "Please wait for a question";

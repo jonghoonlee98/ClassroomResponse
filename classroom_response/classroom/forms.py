@@ -56,7 +56,7 @@ class QuestionForm(forms.ModelForm):
 
 
 class QuestionAddForm(forms.ModelForm):
-    CHOICES = [('1', 'Multiple Choice'), ('2', 'Numeric')]
+    CHOICES = [('MC', 'Multiple Choice'), ('NU', 'Numeric')]
     Type = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES)
 
     class Meta:
