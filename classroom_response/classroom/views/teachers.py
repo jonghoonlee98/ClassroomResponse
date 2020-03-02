@@ -360,12 +360,6 @@ def question_change(request, course_pk, quiz_pk, question_pk):
 def question_activate(request, course_pk, quiz_pk, question_pk):
     quiz = get_object_or_404(Quiz, pk=quiz_pk)
     question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
-    all_questions = Question.objects.filter(quiz__course__owner=request.user)
-
-    all_questions.update(is_active=False)
-
-    question.is_active = True
-    question.save()
 
     return render(request, 'classroom/teachers/question_active.html', {
         'quiz': quiz,
