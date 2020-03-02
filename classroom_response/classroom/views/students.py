@@ -70,15 +70,7 @@ def course(request, pk):
         print(request.POST)
         return redirect('students:course', pk)
 
-    for q in questions:
-        if q.is_active:
-            return render(request, 'classroom/students/course.html', {
-                'course': course,
-                'question': q
-            })
-
     student = request.user.student
-
     return render(request, 'classroom/students/course.html', {
         'course': course, 'firstname': student.user.first_name, 'lastname': student.user.last_name,
     })
