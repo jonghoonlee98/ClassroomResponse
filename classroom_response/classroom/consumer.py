@@ -11,15 +11,9 @@ presentedQuestionsMap = {}
 
 def add_question(course, question):
     presentedQuestionsMap[course] = question
-    print('added')
-    print(course)
-    print(question)
 
-# TODO: use this function to remove any course that is not active anymore
 def delete_question(course):
     del presentedQuestionsMap[course]
-    print('deleted')
-    print(course)
 
 # takes in a message and returns the class name.
 # When a new socket is connected, the path variable is 
@@ -34,14 +28,12 @@ def get_coursecode(message):
  
 def ws_message(message):
     data = json.loads(message.content['text'])
-    print(data)
     if (data['type'] == 'present'):
         question_pk = data['question_pk']
         course_name = data['course_name']
         question = Question.objects.get(pk=question_pk)
         if question.question_type == 'MC':
             answers = Answer.objects.filter(question = question)
-            print(answers)
             send_data = {
                 'type': 'present',
                 'question_type': 'MC',
@@ -49,6 +41,7 @@ def ws_message(message):
                 'course_pk': data['course_pk'],
                 'answers': serializers.serialize('json', answers)
             }
+            # adding the course from presentedQuestionsMap once professor presses present
             add_question(data['course_pk'], send_data)
             Group(get_coursecode(message)).send({'text':json.dumps(send_data)})
     # stop response for both professor and client
@@ -60,6 +53,7 @@ def ws_message(message):
             'text': question.text,
             'course_pk': data['course_pk'],
         }
+        # removing the course from presentedQuestionsMap once professor presses stop
         delete_question(data['course_pk'])
         Group(get_coursecode(message)).send({'text':json.dumps(send_data)})
     # student sending answer to professor
@@ -74,8 +68,6 @@ def ws_message(message):
  
 def ws_connect(message):
     course_code = get_coursecode(message)
-    print(course_code)
-    print(presentedQuestionsMap)
     Group(course_code).add(message.reply_channel)
     send_data = {}
     # handling case where student joins the class late
@@ -87,7 +79,6 @@ def ws_connect(message):
 
  
 def ws_disconnect(message):
-    print(disconnected)
     send_data = {
         'type': 'disconnected'
     }
