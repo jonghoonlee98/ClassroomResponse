@@ -6,14 +6,35 @@
   <script>
     var socket = new WebSocket('ws://' + window.location.host + '/classroom/{{course_pk}}/');
 
+    var firstReceive = false;
+
     socket.onopen = function open() {
       console.log('WebSockets connection created.');
     };
-
-    socket.onclose
  
     socket.onmessage = function message(event) {
       console.log("data from socket:" + event.data);
+      var msg = JSON.parse(event.data);
+      // Handling professor button 
+      if (!firstReceive) {
+        // in last session, professor stopped the question
+        if (msg['type'] == 'professorStop') {
+          $("#present").show();
+          $("#stop").hide()
+        } 
+        // in last session, professor presented the question
+        else {
+          $("#present").hide();
+          $("#stop").show()
+        }
+      }
+      firstReceive = true;
+
+
+      if (msg['type'] == 'answer') {
+
+      }
+
     };
  
     if (socket.readyState == WebSocket.OPEN) {
@@ -58,13 +79,8 @@
   </nav>
   <h2 class="mb-3">{{ question.text }}</h2>
  
-  {% if not question.is_active %}      
-  <a id="present" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank"><button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-primary float-left">Present</button></a>
-  <a id="stop" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank" style="display:none"><button onclick="stop({{ question.pk }}, {{ course_pk }})" class="btn btn-danger float-left">Stop</button></a>
-  {% else %}
   <a id="present" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank" style="display:none"><button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-primary float-left">Present</button></a>
-  <a id="stop" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank"><button onclick="stop({{ question.pk }}, {{ course_pk }})" class="btn btn-danger float-left">Stop</button></a>
-  {% endif %}
+  <button onclick="stop({{ question.pk }}, {{ course_pk }})" id="stop" class="btn btn-danger float-left" target="_blank">Stop</button>
   <br/>
   <br/>
   {% if question.image %}

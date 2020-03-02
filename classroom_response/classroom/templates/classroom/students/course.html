@@ -6,15 +6,6 @@
 
     socket.onopen = function open() {
       console.log('WebSockets connection created.');
-      if ({{ question.pk }}) {
-        var msg = {
-            type: 'present',
-            question_pk: {{ question.pk }},
-            course_pk: {{ course.pk }},
-            course_name: "{{ course.name }}"
-          }
-        socket.send(JSON.stringify(msg));
-      }
     };
  
     socket.onmessage = function message(event) {
@@ -40,7 +31,8 @@
     function submitAnswer(name) {
       var msg = {
         type: 'answer',
-        name: name
+        name: name,
+        answer: $('input[name=student_answer]:checked').val(),
       }
       console.log("sending: " + JSON.stringify(msg))
       socket.send(JSON.stringify(msg));
