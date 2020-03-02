@@ -31,7 +31,8 @@
     function submitAnswer(name) {
       var msg = {
         type: 'answer',
-        name: name
+        name: name,
+        answer: $('input[name=student_answer]:checked').val(),
       }
       console.log("sending: " + JSON.stringify(msg))
       socket.send(JSON.stringify(msg));

@@ -15,6 +15,7 @@
     socket.onmessage = function message(event) {
       console.log("data from socket:" + event.data);
       var msg = JSON.parse(event.data);
+      // Handling professor button 
       if (!firstReceive) {
         // in last session, professor stopped the question
         if (msg['type'] == 'professorStop') {
@@ -28,6 +29,12 @@
         }
       }
       firstReceive = true;
+
+
+      if (msg['type'] == 'answer') {
+
+      }
+
     };
  
     if (socket.readyState == WebSocket.OPEN) {

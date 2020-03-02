@@ -61,7 +61,7 @@ def ws_message(message):
         send_data = {
             'type': 'answer',
             'name': data['name'],
-            'answer': 'TODO'
+            'answer': data['answer'],
         }
         Group(get_coursecode(message)).send({'text':json.dumps(send_data)})
 
