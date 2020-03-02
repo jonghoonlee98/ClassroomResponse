@@ -70,6 +70,7 @@ def course(request, pk):
         print(request.POST)
         return redirect('students:course', pk)
 
+    # student sending their answer to the professor
     student = request.user.student
     return render(request, 'classroom/students/course.html', {
         'course': course, 'firstname': student.user.first_name, 'lastname': student.user.last_name,
