@@ -91,5 +91,5 @@ class TakenQuiz(models.Model):
 
 class StudentAnswer(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='quiz_answers')
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='+')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='+', null=True)
     submission = jsonfield.JSONField(null=True)
