@@ -75,10 +75,16 @@ def course(request, pk):
                 'answer': request.POST.get('student_answer', None)
             }
         elif question.question_type == 'NU':
+            answer = request.POST.get('student_answer', None)
             submission = {
-                'answer': request.POST.get('student_answer', None),
+                'answer': answer,
                 'unit': request.POST.get('unit', None)
             }
+            try:
+                float(answer)
+            except:
+                messages.error(request, "Answer must be a valid float")
+                return redirect('students:course', pk)
         student_answer = StudentAnswer(student=student, question=question, submission=json.dumps(submission))
         student_answer.save()
         messages.success(request, 'Thank you for submitting your answer!')

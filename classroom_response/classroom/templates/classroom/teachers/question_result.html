@@ -3,23 +3,126 @@
 {% load crispy_forms_tags crispy_forms_filters %}
 
 {% block content %}
-  <script>
+<script>
+  if ('{{ question.question_type }}' == 'MC') {
+    student_answers = JSON.parse('{{ student_answers|safe }}');
+    answers = JSON.parse('{{ answers|safe }}');
+    dataPoints = []
+   
+    for (var i = 0; i < answers.length; i++) {
+      answer =  {
+        y : 0,
+        label: answers[i]['text'],
+        color: (answers[i]['is_correct'] == 'true') ? 'green' : 'red'
+      }
+      dataPoints.push(answer);
+    }
 
-  </script>
+    for (var i = 0; i < student_answers.length; i++) {
+      for (var j = 0; j < dataPoints.length; j++) {
+        if (student_answers[i] == dataPoints[j].label) {
+          dataPoints[j].y++;
+        }
+      }
+    }
+
+    dataPoints.sort(function (a, b) {
+      return b.y - a.y;
+    });
+
+    window.onload = function () {
+      var chart = new CanvasJS.Chart("chartContainer", {
+        animationEnabled: true,
+        theme: "light2",
+        title:{
+          text: "Student responses"
+        },
+        axisY: {
+          title: "Responses"
+        },
+        data: [{        
+          type: "column",  
+          dataPoints: dataPoints
+        }]
+      });
+      chart.render();
+    }
+  }
+  else if ('{{ question.question_type }}' == 'NU') {
+    window.onload = function () {
+      var raw = JSON.parse('{{ student_answers|safe }}');
+      const counter = (acc, x) => {
+        let key = x.answer + x.unit.toString()
+        if (!acc.hasOwnProperty(key)) {
+          acc[key] = x;
+          acc[key]['count'] = 0
+        }
+        acc[key]['count']++;
+        return acc
+      }
+
+      let d = Object.values(raw.reduce(counter, {}))
+      function unpack(rows, key) {
+        return rows.map(function(row) { return row[key]; });
+      }
+      // -----------------------------------------------------------------------------
+      values = unpack(d, 'answer')
+      units = unpack(d, 'unit')
+      counts = unpack(d, 'count')
+
+      var data = [{
+        type: 'scatter',
+        x: values,
+        y: units,
+        text: counts.map(x=> "Count: " + String(x)),
+        mode: 'markers',
+        marker: {
+          size: counts,
+          sizemode: "area",
+          sizeref: sizeref = 2 * Math.max(counts.length / (100** 2))
+        },
+        transforms: [
+          {   type: 'groupby',
+              groups: units}
+         ]
+      }]
+      layout = {
+        title: '<b>Student Answers</b><br>size indicates frequency of answers',
+        xaxis: {title: 'Values', range: [Math.min(values), Math.max(values)]},
+        yaxis: {title: 'Units'},
+        height: 500,
+        width: 700,
+        hovermode:'closest',
+      }
+
+      Plotly.newPlot('chartContainer', data, layout)
+      var myPlot = document.getElementById('chartContainer')
+      myPlot.on('plotly_hover', function(data){
+
+      });
+    }
+  }
+</script>
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
       <li class="breadcrumb-item"><a href="{% url 'teachers:course_change' course_pk %}">{{ course_name }}</a></li>
       <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change' course_pk=course_pk pk=quiz.pk %}">{{ quiz.name }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:question_view' course_pk quiz.pk question.pk %}">{{ question.text }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">Result</li>
     </ol>
   </nav>
   <h2 class="mb-3">Results</h2>
-  {% for a in student_answers %}
-    {{ a.student.user.first_name }}
-    {{ a.student.user.last_name }}
-    {{ a.submission }}<br/>
-    
-  {% endfor %}
+  {% if student_answers and answers %}
+    {% if question.question_type == 'MC' %}
+      <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+    {% elif question.question_type == 'NU' %}
+      Correct answer: {{ answers }} {{ unit }}
+      <div id='chartContainer'></div>
+      
+    {% endif %}
+  {% else %}
+  No results to show.
+  {% endif %}
 {% endblock %}
