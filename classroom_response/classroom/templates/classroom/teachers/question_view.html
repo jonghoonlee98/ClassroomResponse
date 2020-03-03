@@ -4,7 +4,12 @@
 
 {% block content %}
   <script>
-    var socket = new WebSocket('ws://' + window.location.host + '/classroom/{{course_pk}}/');
+    var ws = 'wss://'
+    if (window.location.protocol == 'http:') {
+      ws = 'ws://'
+    }
+
+    var socket = new WebSocket(ws + window.location.host + '/classroom/{{course_pk}}/');
 
     socket.onopen = function open() {
       console.log('WebSockets connection created.');
