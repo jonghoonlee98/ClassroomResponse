@@ -5,47 +5,73 @@
 {% block content %}
 <script>
   if ('{{ question.question_type }}' == 'MC') {
-    student_answers = JSON.parse('{{ student_answers|safe }}');
-    answers = JSON.parse('{{ answers|safe }}');
-    dataPoints = []
-   
-    for (var i = 0; i < answers.length; i++) {
-      answer =  {
-        y : 0,
-        label: answers[i]['text'],
-        color: (answers[i]['is_correct'] == 'true') ? 'green' : 'red'
-      }
-      dataPoints.push(answer);
-    }
-
-    for (var i = 0; i < student_answers.length; i++) {
-      for (var j = 0; j < dataPoints.length; j++) {
-        if (student_answers[i] == dataPoints[j].label) {
-          dataPoints[j].y++;
-        }
-      }
-    }
-
-    dataPoints.sort(function (a, b) {
-      return b.y - a.y;
-    });
-
     window.onload = function () {
-      var chart = new CanvasJS.Chart("chartContainer", {
-        animationEnabled: true,
-        theme: "light2",
-        title:{
-          text: "Student responses"
-        },
-        axisY: {
-          title: "Responses"
-        },
-        data: [{        
-          type: "column",  
-          dataPoints: dataPoints
-        }]
+      var student_answers = JSON.parse('{{ student_answers|safe }}');
+      var prof_answers = JSON.parse('{{ answers|safe }}');
+
+      var correct_answers_set = new Set(prof_answers.filter(x => x.is_correct == true).map(x => x.text))
+      var incorrect_answers_set = new Set(prof_answers.filter(x => x.is_correct == false).map(x => x.text))
+
+      const counter = (acc, x) => {
+        if (!acc.hasOwnProperty(x)) {
+          acc[x]= 0
+        }
+        acc[x]++;
+        return acc
+      }
+      var answer_counts = student_answers.reduce(counter, {})
+
+      const obj_to_arr = obj => Object.keys(obj).map(function(key) {
+        return [key, obj[key]];
       });
-      chart.render();
+
+      const correct_answer_counts = obj_to_arr(Object.keys(answer_counts)
+        .filter(key => correct_answers_set.has(key))
+        .reduce((obj, key) => {
+          obj[key] = answer_counts[key];
+          return obj;
+        }, {}));
+
+      const incorrect_answer_counts = obj_to_arr(Object.keys(answer_counts)
+        .filter(key => incorrect_answers_set.has(key))
+        .reduce((obj, key) => {
+          obj[key] = answer_counts[key];
+          return obj;
+        }, {}));
+
+      let green = 'rgba(0,255,0,1)'
+      let red = 'rgba(255,0,0,1)'
+      let black = 'rgba(0,0,0,1)'
+
+      correct_answer_counts.sort((x, y) => y[1]- x[1]).map(x => x.push(green))
+
+      incorrect_answer_counts.sort((x, y) => y[1]- x[1]).map(x => x.push(red))
+
+      let all_counts = correct_answer_counts.concat(incorrect_answer_counts)
+
+      let all_answers_set = new Set([...correct_answers_set, ...incorrect_answers_set])
+
+      all_counts.map(x => x[0]).map(x => all_answers_set.delete(x))
+
+      all_counts = all_counts.concat(Array.from(all_answers_set).map(x => [x, 0, black]))
+
+      var data = [
+        {
+          x: all_counts.map(x => x[0]),
+          y: all_counts.map(x => x[1]),
+          marker: {
+            color: all_counts.map(x => x[2])
+          },
+          type: 'bar'
+        }
+      ];
+
+      layout = {
+        height: 500,
+        width: 700,
+      }
+
+      Plotly.newPlot('chartContainer', data, layout);
     }
   }
   else if ('{{ question.question_type }}' == 'NU') {
@@ -116,11 +142,10 @@
   <h2 class="mb-3">Results</h2>
   {% if student_answers and answers %}
     {% if question.question_type == 'MC' %}
-      <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+      <div id="chartContainer"></div>
     {% elif question.question_type == 'NU' %}
       Correct answer: {{ answers }} {{ unit }}
       <div id='chartContainer'></div>
-      
     {% endif %}
   {% else %}
   No results to show.

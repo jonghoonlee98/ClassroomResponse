@@ -85,6 +85,7 @@ def course(request, pk):
             except:
                 messages.error(request, "Answer must be a valid float")
                 return redirect('students:course', pk)
+        StudentAnswer.objects.filter(student=student, question=question).delete()
         student_answer = StudentAnswer(student=student, question=question, submission=json.dumps(submission))
         student_answer.save()
         messages.success(request, 'Thank you for submitting your answer!')
