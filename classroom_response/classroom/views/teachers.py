@@ -13,7 +13,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
 
 from ..decorators import teacher_required
 from ..forms import BaseAnswerInlineFormSet, QuestionForm, QuestionAddForm, TeacherSignUpForm
-from ..models import Answer, Question, Quiz, User, Course
+from ..models import *
 
 import json
 
@@ -392,7 +392,23 @@ def question_deactivate(request, course_pk, quiz_pk, question_pk):
     question.is_active = False
     question.save()
 
-    return redirect('teachers:question_view', course_pk, quiz_pk, question_pk)
+    return redirect('teachers:question_result', course_pk, quiz_pk, question_pk)
+
+
+@login_required
+@teacher_required
+def question_result(request, course_pk, quiz_pk, question_pk):
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
+    question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
+    student_answers = StudentAnswer.objects.filter(question=question)
+
+    return render(request, 'classroom/teachers/question_result.html', {
+        'quiz': quiz,
+        'question': question,
+        'course_pk': course_pk,
+        'course_name': Course.objects.get(pk=course_pk).name,
+        'student_answers': student_answers
+    })
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')

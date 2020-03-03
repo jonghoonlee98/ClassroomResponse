@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block content %}
+  <script>
+
+  </script>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:course_change' course_pk %}">{{ course_name }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change' course_pk=course_pk pk=quiz.pk %}">{{ quiz.name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Result</li>
+    </ol>
+  </nav>
+  <h2 class="mb-3">Results</h2>
+  {% for a in student_answers %}
+    {{ a.student.user.first_name }}
+    {{ a.student.user.last_name }}
+    {{ a.submission }}<br/>
+    
+  {% endfor %}
+{% endblock %}
