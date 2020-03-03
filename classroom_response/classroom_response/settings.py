@@ -145,12 +145,13 @@ MEDIA_URL = '/media/'
 
 
 # Channels
+redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "asgi_redis.RedisChannelLayer",
         "CONFIG": {
-            'hosts': [('localhost', 6379)],
+            'hosts': [redis_url],
         },
         "ROUTING": "classroom_response.routing.channel_routing",
     },
