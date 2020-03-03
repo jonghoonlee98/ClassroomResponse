@@ -10,7 +10,10 @@ from django.views.generic import CreateView, ListView, UpdateView
 
 from ..decorators import student_required
 from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm, CourseRegistrationForm
-from ..models import Quiz, Student, TakenQuiz, User, Course, Question
+from ..models import *
+from ..parse_data import *
+
+import json
 
 
 class StudentSignUpView(CreateView):
@@ -61,26 +64,44 @@ class CourseListView(ListView):
 @student_required
 def course(request, pk):
     course = get_object_or_404(Course, pk=pk)
-
+    student = request.user.student
     questions = Question.objects.filter(quiz__course=course)
-    #print(questions)
 
-    #print(request.user.pk)
     if request.method == 'POST':
         print(request.POST)
+        question = get_object_or_404(Question, pk=request.POST.get('question_pk', None))
+        if question.question_type == 'MC':
+            submission = {
+                'answer': request.POST.get('student_answer', None)
+            }
+        elif question.question_type == 'NU':
+            submission = {
+                'answer': request.POST.get('student_answer', None),
+                'unit': request.POST.get('unit', None)
+            }
+        student_answer = StudentAnswer(student=student, question=question, submission=json.dumps(submission))
+        student_answer.save()
+        messages.success(request, 'Thank you for submitting your answer!')
         return redirect('students:course', pk)
 
     for q in questions:
-        if q.is_active:
+        if q.is_active and len(StudentAnswer.objects.filter(question=q, student=student)) == 0:
+            if q.question_type == 'MC':
+                answer_data = parse_MC(q)
+            elif q.question_type == 'NU':
+                answer_data = parse_NU(q)
             return render(request, 'classroom/students/course.html', {
                 'course': course,
-                'question': q
+                'active_question': True,
+                'question': q,
+                'answer_data': json.dumps(answer_data)
             })  
 
-    student = request.user.student
-
     return render(request, 'classroom/students/course.html', {
-        'course': course, 'firstname': student.user.first_name, 'lastname': student.user.last_name,
+        'course': course, 
+        'active_question': False,
+        'firstname': student.user.first_name, 
+        'lastname': student.user.last_name,
     })
 
 

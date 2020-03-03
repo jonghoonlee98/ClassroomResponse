@@ -1,5 +1,6 @@
 from channels import Group
 from classroom.models import *
+from classroom.parse_data import *
 import threading
 import random
 import json
@@ -24,31 +25,10 @@ def ws_message(message):
         course_name = data['course_name']
         question = Question.objects.get(pk=question_pk)
         if question.question_type == 'MC':
-            answers = Answer.objects.filter(question = question)
-            print(answers)
-            send_data = {
-                'type': 'present',
-                'question_type': 'MC',
-                'text': question.text,
-                'answers': serializers.serialize('json', answers),
-                'question_pk': question_pk
-            }
+            send_data = parse_MC(question)
             Group(get_classname(message)).send({'text':json.dumps(send_data)})
         elif question.question_type == 'NU':
-            answers = Answer.objects.filter(question = question)
-            units = None
-            if len(answers):
-                data = json.loads(answers[0].data)
-                answer = data['answer']
-                if 'units' in data:
-                    units = data['units']
-            send_data = {
-                'type': 'present',
-                'question_type': 'NU',
-                'text': question.text,
-                'units': units,
-                'question_pk': question_pk
-            }
+            send_data = parse_NU(question)
             Group(get_classname(message)).send({'text':json.dumps(send_data)})
 
     elif (data['type'] == 'stop'):
@@ -57,7 +37,6 @@ def ws_message(message):
         send_data = {
             'type': 'stop',
             'text': question.text,
-            'course_name': course_name
         }
         Group(get_classname(message)).send({'text':json.dumps(send_data)})
     elif (data['type'] == 'answer'):

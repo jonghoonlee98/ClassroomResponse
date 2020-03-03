@@ -6,29 +6,32 @@
 
     socket.onopen = function open() {
       console.log('WebSockets connection created.');
-      if ({{ question.pk }}) {
+      /*if ('{{ active_question }}' == 'True') {
         var msg = {
             type: 'present',
-            question_pk: {{ question.pk }},
-            course_pk: {{ course.pk }},
+            question_pk: '{{ question.pk }}',
+            course_pk: '{{ course.pk }}',
             course_name: "{{ course.name }}"
           }
         socket.send(JSON.stringify(msg));
-      }
+      }*/
     };
  
     socket.onmessage = function message(event) {
       console.log("data from socket:" + event.data);
       var msg = JSON.parse(event.data);
+      handleMessage(msg);
+    };
+
+    function handleMessage(msg) {
       if (msg['type'] == 'present') {
         $("#answer").empty();
         $("#answer").append("<p>Please answer the question.</p>")
         $("#submit_answer").show();
         if (msg['question_type'] == 'MC') {
-          choices = JSON.parse(msg['answers']);
+          choices = msg['answers'];
           for (var i = 0; i < choices.length; i++) {
-            console.log(choices[i]);
-            $("#answer").append("<input type='radio' name='student_answer' value=" + choices[i].pk + " required> " + choices[i].fields['text'] + "</input><br/>");
+            $("#answer").append("<input type='radio' name='student_answer' value='" + choices[i]['text'] + "' required> " + choices[i]['text'] + "</input><br/>");
           }
         } else if (msg['question_type'] == 'NU') {
           $("#answer").append("<input type='text' name='student_answer' value='{{ answer }}' required></input> ");
@@ -40,11 +43,16 @@
             $("#answer").append("</select>");
           }
         }
+        $("<input />").attr("type", "hidden")
+          .attr("name", "question_pk")
+          .attr("value", msg['question_pk'])
+          .appendTo("#answer");
+
       } else if (msg['type'] == 'stop') {
         answer.innerText = "Please wait for a question";
         $("#submit_answer").hide();
-      }
-    };
+      }      
+    }
 
     function submitAnswer(name) {
       var msg = {
@@ -58,6 +66,12 @@
     if (socket.readyState == WebSocket.OPEN) {
       socket.onopen();
     }
+
+    function activeQuestion() {
+      var data = '{{ answer_data|safe }}';
+      console.log(data)
+      handleMessage(JSON.parse(data));
+    }
   </script>
 
   <nav aria-label="breadcrumb">
@@ -66,13 +80,15 @@
       <li class="breadcrumb-item active" aria-current="page">{{ course.name }}</li>
     </ol>
   </nav>
-  <form method="post">
+  <form method="post" id="#form">
     {% csrf_token %}
     <div class="form-group" id="answer">
       Please wait for a question.
     </div>
     <button id="submit_answer" onclick="submitAnswer('{{ firstname }} {{ lastname }}')" type="submit" class="btn btn-primary" style="display:none">Submit</button>
   </form> 
-
+  {% if active_question %}
+  <script>activeQuestion();</script>
+  {% endif %}
 
 {% endblock %}

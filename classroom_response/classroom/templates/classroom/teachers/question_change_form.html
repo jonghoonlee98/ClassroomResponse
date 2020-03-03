@@ -11,6 +11,15 @@
       }
     }
 
+    function add_answer() {
+      var count = $("#answers > div").length;
+      if (count >= 10) {
+        alert("You cannot have more than 10 answers");
+      } else {
+        $("#answers").append("<div class='list-group-item' id='" + count + "'><div class='row'><div class='col-8'><input type='text' name='answer_" + count +"' size='35' required></input></div><div class='col-2'><input type='checkbox' name='right_" + count + "' ></input></div><div class='col-2'><input type='checkbox' name='delete_" + count +  "' ></input></div></div></div>");
+      }
+    }
+
     $(document).ready(function(){
       $("#form").submit( function(eventObj) {
         $( ".units" ).each(function( index ) {
@@ -61,31 +70,45 @@
           </div>
         </div>
       </div>
-      {% for error in formset.non_form_errors %}
-        <div class="card-body bg-danger border-danger text-white py-2">{{ error }}</div>
-      {% endfor %}
-      <div class="list-group list-group-flush list-group-formset">
-        {% for form in formset %}
-          <div class="list-group-item">
+      <div id="answers" class="list-group list-group-flush list-group-formset">
+        {% if answers %}
+          {% for a in answers %} 
+            <div class="list-group-item" id='{{ forloop.counter0 }}'>
+              <div class="row">
+                <div class="col-8">
+                  <input type='text' name='answer_{{ forloop.counter0 }}' size='35' value='{{ a.text }}' required></input>
+                </div>
+                <div class="col-2">
+                  {% if a.is_correct %}
+                  <input type='checkbox' name='right_{{ forloop.counter0 }}' checked></input>
+                  {% else %}
+                  <input type='checkbox' name='right_{{ forloop.counter0 }}'></input>
+                  {% endif %}
+                </div>
+                <div class="col-2">
+                  <input type='checkbox' name='delete_{{ forloop.counter0 }}'></input>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="list-group-item" id='0'>
             <div class="row">
               <div class="col-8">
-                {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-                {{ form.text|as_crispy_field }}
-                {% if form.instance.pk and form.text.value != form.instance.text %}<p class="mb-0 mt-1"><small class="text-muted font-italic"><strong>Old answer:</strong> {{ form.instance.text }}</small></p>{% endif %}
+                <input type='text' name='answer_0' size='35' required></input>
               </div>
               <div class="col-2">
-                {{ form.is_correct }}
+                <input type='checkbox' name='right_0'></input>
               </div>
               <div class="col-2">
-                {% if form.instance.pk %}
-                  {{ form.DELETE }}
-                {% endif %}
+                <input type='checkbox' name='delete_0'></input>
               </div>
             </div>
           </div>
-        {% endfor %}
+        {% endif %}
       </div>
     </div>
+    <button onclick="add_answer();" type='button' class="btn btn-primary btn-sm">Add Answer</button>
 
     {% elif question.question_type == 'NU' %}
     <div>

@@ -232,16 +232,19 @@ def question_view(request, course_pk, quiz_pk, question_pk):
     answers = Answer.objects.filter(question=question)
 
     if question.question_type == 'MC':
+        if len(answers):
+            data = json.loads(answers[0].data)
+            answer = data['answer']
+
         return render(request, 'classroom/teachers/question_view.html', {
             'quiz': quiz,
             'question': question,
             'course_pk': course_pk,
             'course_name': Course.objects.get(pk=course_pk).name,
-            'answers': answers,
+            'answers': answer,
         })
-    elif question.question_type == 'NU':
-        answers = Answer.objects.filter(question=question)
 
+    elif question.question_type == 'NU':
         answer = ''
         units = None
         correct_unit = None
@@ -268,25 +271,30 @@ def question_change(request, course_pk, quiz_pk, question_pk):
     quiz = get_object_or_404(Quiz, pk=quiz_pk)
     question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
 
-    AnswerFormSet = inlineformset_factory(
-        Question,  # parent model
-        Answer,  # base model
-        formset=BaseAnswerInlineFormSet,
-        fields=('text', 'is_correct'),
-        min_num=2,
-        validate_min=True,
-        max_num=5,
-        validate_max=True
-    )
-
     if request.method == 'POST':
         if question.question_type == 'MC':
             form = QuestionForm(request.POST, request.FILES, instance=question)
-            formset = AnswerFormSet(request.POST, instance=question)
-            if form.is_valid() and formset.is_valid():
+            if form.is_valid():
                 with transaction.atomic():
                     form.save()
-                    formset.save()
+                answers = []
+                for x in range(0, 10):
+                    text = request.POST.get('answer_' + str(x), None)
+                    delete = request.POST.get('delete_' + str(x), None)
+                    correct = request.POST.get('right_' + str(x), None)
+                    right = False if correct is None else True 
+                    if text is not None and delete is None:
+                        answer = {
+                            'text': text,
+                            'is_correct': right
+                        }
+                        answers.append(answer)
+                Answer.objects.filter(question=question).delete()
+                data = {
+                    'answer' : answers
+                }
+                answer = Answer(data=json.dumps(data), question=question)
+                answer.save()
                 messages.success(request, 'Question and answers saved with success!')
                 return redirect('teachers:question_view', course_pk, quiz.pk, question_pk)
         elif question.question_type == 'NU':
@@ -296,9 +304,6 @@ def question_change(request, course_pk, quiz_pk, question_pk):
                     form.save()
                 answer = request.POST.get('correct_answer', None)
                 units = request.POST.getlist('units')
-                print(request.POST)
-                print(units)
-                print(answer)
                 Answer.objects.filter(question=question).delete()
                 if len(units):           
                     data = {
@@ -317,16 +322,23 @@ def question_change(request, course_pk, quiz_pk, question_pk):
 
     else:
         form = QuestionForm(instance=question)
-        formset = AnswerFormSet(instance=question)
 
     if question.question_type == 'MC':
+        answer = Answer.objects.filter(question=question)
+
+        answers = None
+
+        if len(answer):
+            data = json.loads(answer[0].data)
+            answers = data['answer']
+
         return render(request, 'classroom/teachers/question_change_form.html', {
             'quiz': quiz,
             'question': question,
             'form': form,
-            'formset': formset,
             'course_pk': course_pk,
             'course_name': Course.objects.get(pk=course_pk).name,
+            'answers': answers
         })
 
     elif question.question_type == 'NU':
@@ -376,7 +388,11 @@ def question_activate(request, course_pk, quiz_pk, question_pk):
 @login_required
 @teacher_required
 def question_deactivate(request, course_pk, quiz_pk, question_pk):
-    return HttpResponse(request.POST['text'])
+    question = get_object_or_404(Question, pk=question_pk)
+    question.is_active = False
+    question.save()
+
+    return redirect('teachers:question_view', course_pk, quiz_pk, question_pk)
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')

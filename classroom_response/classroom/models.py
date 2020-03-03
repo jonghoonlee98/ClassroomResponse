@@ -56,8 +56,6 @@ class Question(models.Model):
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
-    text = models.CharField('Answer', max_length=255, null=True)
-    is_correct = models.BooleanField('Correct answer', default=False)
     data = jsonfield.JSONField(null=True)
 
     def __str__(self):
@@ -93,5 +91,5 @@ class TakenQuiz(models.Model):
 
 class StudentAnswer(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='quiz_answers')
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='+')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='+')
     submission = jsonfield.JSONField(null=True)
