@@ -62,14 +62,14 @@
     </ol>
   </nav>
   <h2 class="mb-3">{{ question.text }}</h2>
- 
   {% if not question.is_active %}      
-  <a id="present" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank"><button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-primary float-left">Present</button></a>
-  <a id="stop" href="{% url 'teachers:question_deactivate' course_pk quiz.pk question.pk %}"  style="display:none"><button onclick="stop({{ question.pk }}, {{ course_pk }})" class="btn btn-danger float-left">Stop</button></a>
+  <a id="present" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank"><button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-success float-left">Present</button></a>
+  <a id="stop" href="{% url 'teachers:question_deactivate' course_pk quiz.pk question.pk %}"  style="display:none" target="_blank"><button onclick="stop({{ question.pk }}, {{ course_pk }})" class="btn btn-danger float-left">Stop Presenting</button></a>
   {% else %}
-  <a id="present" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank" style="display:none"><button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-primary float-left">Present</button></a>
-  <a id="stop" href="{% url 'teachers:question_deactivate' course_pk quiz.pk question.pk %}" ><button onclick="stop({{ question.pk }}, {{ course_pk }})" class="btn btn-danger float-left">Stop</button></a>
+  <a id="present" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank" style="display:none"><button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-success float-left">Present</button></a>
+  <a id="stop" target="_blank" href="{% url 'teachers:question_deactivate' course_pk quiz.pk question.pk %}" ><button onclick="stop({{ question.pk }}, {{ course_pk }})" class="btn btn-danger float-left">Stop Presenting</button></a>
   {% endif %}
+  <a id="results" href="{% url 'teachers:question_result' course_pk quiz.pk question.pk %}" target="_blank" class="btn btn-primary float-right">Results</a>
   <br/>
   <br/>
   {% if question.image %}

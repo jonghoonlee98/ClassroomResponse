@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block content %}
+<script>
+  if ('{{ question.question_type }}' == 'MC') {
+    window.onload = function () {
+      var student_answers = JSON.parse('{{ student_answers|safe }}');
+      var prof_answers = JSON.parse('{{ answers|safe }}');
+
+      var correct_answers_set = new Set(prof_answers.filter(x => x.is_correct == true).map(x => x.text))
+      var incorrect_answers_set = new Set(prof_answers.filter(x => x.is_correct == false).map(x => x.text))
+
+      const counter = (acc, x) => {
+        if (!acc.hasOwnProperty(x)) {
+          acc[x]= 0
+        }
+        acc[x]++;
+        return acc
+      }
+      var answer_counts = student_answers.reduce(counter, {})
+
+      const obj_to_arr = obj => Object.keys(obj).map(function(key) {
+        return [key, obj[key]];
+      });
+
+      const correct_answer_counts = obj_to_arr(Object.keys(answer_counts)
+        .filter(key => correct_answers_set.has(key))
+        .reduce((obj, key) => {
+          obj[key] = answer_counts[key];
+          return obj;
+        }, {}));
+
+      const incorrect_answer_counts = obj_to_arr(Object.keys(answer_counts)
+        .filter(key => incorrect_answers_set.has(key))
+        .reduce((obj, key) => {
+          obj[key] = answer_counts[key];
+          return obj;
+        }, {}));
+
+      let green = 'rgba(0,255,0,1)'
+      let red = 'rgba(255,0,0,1)'
+      let black = 'rgba(0,0,0,1)'
+
+      correct_answer_counts.sort((x, y) => y[1]- x[1]).map(x => x.push(green))
+
+      incorrect_answer_counts.sort((x, y) => y[1]- x[1]).map(x => x.push(red))
+
+      let all_counts = correct_answer_counts.concat(incorrect_answer_counts)
+
+      let all_answers_set = new Set([...correct_answers_set, ...incorrect_answers_set])
+
+      all_counts.map(x => x[0]).map(x => all_answers_set.delete(x))
+
+      all_counts = all_counts.concat(Array.from(all_answers_set).map(x => [x, 0, black]))
+
+      var data = [
+        {
+          x: all_counts.map(x => x[0]),
+          y: all_counts.map(x => x[1]),
+          marker: {
+            color: all_counts.map(x => x[2])
+          },
+          type: 'bar'
+        }
+      ];
+
+      layout = {
+        height: 500,
+        width: 700,
+      }
+
+      Plotly.newPlot('chartContainer', data, layout);
+    }
+  }
+  else if ('{{ question.question_type }}' == 'NU') {
+    window.onload = function () {
+      var raw = JSON.parse('{{ student_answers|safe }}');
+      const counter = (acc, x) => {
+        let key = x.answer + x.unit.toString()
+        if (!acc.hasOwnProperty(key)) {
+          acc[key] = x;
+          acc[key]['count'] = 0
+        }
+        acc[key]['count']++;
+        return acc
+      }
+
+      let d = Object.values(raw.reduce(counter, {}))
+      function unpack(rows, key) {
+        return rows.map(function(row) { return row[key]; });
+      }
+      // -----------------------------------------------------------------------------
+      values = unpack(d, 'answer')
+      units = unpack(d, 'unit')
+      counts = unpack(d, 'count')
+
+      var data = [{
+        type: 'scatter',
+        x: values,
+        y: units,
+        text: counts.map(x=> "Count: " + String(x)),
+        mode: 'markers',
+        marker: {
+          size: counts,
+          sizemode: "area",
+          sizeref: sizeref = 2 * Math.max(counts.length / (100** 2))
+        },
+        transforms: [
+          {   type: 'groupby',
+              groups: units}
+         ]
+      }]
+      layout = {
+        title: '<b>Student Answers</b><br>size indicates frequency of answers',
+        xaxis: {title: 'Values', range: [Math.min(values), Math.max(values)]},
+        yaxis: {title: 'Units'},
+        height: 500,
+        width: 700,
+        hovermode:'closest',
+      }
+
+      Plotly.newPlot('chartContainer', data, layout)
+      var myPlot = document.getElementById('chartContainer')
+      myPlot.on('plotly_hover', function(data){
+
+      });
+    }
+  }
+</script>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:course_change' course_pk %}">{{ course_name }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_change' course_pk=course_pk pk=quiz.pk %}">{{ quiz.name }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teachers:question_view' course_pk quiz.pk question.pk %}">{{ question.text }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Result</li>
+    </ol>
+  </nav>
+  <h2 class="mb-3">Results</h2>
+  {% if student_answers and answers %}
+    {% if question.question_type == 'MC' %}
+      <div id="chartContainer"></div>
+    {% elif question.question_type == 'NU' %}
+      Correct answer: {{ answers }} {{ unit }}
+      <div id='chartContainer'></div>
+    {% endif %}
+  {% else %}
+  No results to show.
+  {% endif %}
+{% endblock %}

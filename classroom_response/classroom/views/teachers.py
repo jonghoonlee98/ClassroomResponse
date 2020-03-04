@@ -10,12 +10,14 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponse
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
+from django.core import serializers
 
 from ..decorators import teacher_required
 from ..forms import BaseAnswerInlineFormSet, QuestionForm, QuestionAddForm, TeacherSignUpForm
-from ..models import Answer, Question, Quiz, User, Course
+from ..models import *
 
 import json
+
 
 
 class TeacherSignUpView(CreateView):
@@ -255,7 +257,7 @@ def question_view(request, course_pk, quiz_pk, question_pk):
             if 'units' in data:
                 units = data['units']
                 correct_unit = data['correct_unit']
-                
+
         return render(request, 'classroom/teachers/question_view.html', {
             'quiz': quiz,
             'question': question,
@@ -270,7 +272,6 @@ def question_view(request, course_pk, quiz_pk, question_pk):
 def question_change(request, course_pk, quiz_pk, question_pk):
     quiz = get_object_or_404(Quiz, pk=quiz_pk)
     question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
-
     if request.method == 'POST':
         if question.question_type == 'MC':
             form = QuestionForm(request.POST, request.FILES, instance=question)
@@ -315,6 +316,13 @@ def question_change(request, course_pk, quiz_pk, question_pk):
                     data = {
                         'answer': answer
                     }
+
+                try:
+                    float(answer)
+                except:
+                    messages.error(request, "Answer must be a valid float")
+                    return redirect('teachers:question_change', course_pk, quiz.pk, question_pk)
+
                 answer = Answer(data=json.dumps(data), question=question)
                 answer.save()
                 messages.success(request, 'Question and answers saved with success!')
@@ -392,7 +400,43 @@ def question_deactivate(request, course_pk, quiz_pk, question_pk):
     question.is_active = False
     question.save()
 
-    return redirect('teachers:question_view', course_pk, quiz_pk, question_pk)
+    return redirect('teachers:question_result', course_pk, quiz_pk, question_pk)
+
+
+@login_required
+@teacher_required
+def question_result(request, course_pk, quiz_pk, question_pk):
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
+    question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
+    student_answers = StudentAnswer.objects.filter(question=question).values_list('submission')
+    answer = Answer.objects.filter(question=question)
+    answers = None
+    unit = None
+    submissions = []
+
+    if question.question_type == 'MC':
+        for a in list(student_answers):
+            submissions.append(json.loads(a[0])['answer'])
+    elif question.question_type == 'NU':
+        for a in list(student_answers):
+            submissions.append(json.loads(a[0]))
+
+    if len(answer):
+        data = json.loads(answer[0].data)
+        answers = data['answer']
+        if question.question_type == 'NU':
+            unit = data['correct_unit']
+
+
+    return render(request, 'classroom/teachers/question_result.html', {
+        'quiz': quiz,
+        'question': question,
+        'course_pk': course_pk,
+        'course_name': Course.objects.get(pk=course_pk).name,
+        'student_answers': json.dumps(submissions),
+        'answers': json.dumps(answers),
+        'unit': unit
+    })
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
