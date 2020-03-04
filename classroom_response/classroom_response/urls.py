@@ -5,6 +5,7 @@ from classroom.views import classroom, students, teachers
 
 from . import settings
 from django.contrib.staticfiles.urls import static
+from django.conf.urls.static import static as static_url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
@@ -18,3 +19,4 @@ urlpatterns = [
 
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static_url(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
