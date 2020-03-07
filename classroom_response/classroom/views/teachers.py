@@ -425,7 +425,10 @@ def question_result(request, course_pk, quiz_pk, question_pk):
         data = json.loads(answer[0].data)
         answers = data['answer']
         if question.question_type == 'NU':
-            unit = data['correct_unit']
+            try:
+                unit = data['correct_unit']
+            except:
+                unit = None
 
 
     return render(request, 'classroom/teachers/question_result.html', {

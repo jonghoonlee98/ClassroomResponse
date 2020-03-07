@@ -144,7 +144,7 @@
     {% if question.question_type == 'MC' %}
       <div id="chartContainer"></div>
     {% elif question.question_type == 'NU' %}
-      Correct answer: {{ answers }} {{ unit }}
+      Correct answer: {{ answers }} {% if unit %} {{ unit }} {% endif %}
       <div id='chartContainer'></div>
     {% endif %}
   {% else %}
