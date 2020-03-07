@@ -33,13 +33,3 @@ How to run the application:
 * Test:
 	* when jlee01 pressed the 'submit' button, professor browser displayed student response on console
 
-**BLOCKED, NOT COMMITTED "present question to late student (Bug Fix)"** -- Roy
-* Implementation: 
-	* when student joins after professor presses present button, they can't see the question.
-	* added a hash map that stores course_name -> question_text in consumer.py
-		* ***removing a course_name -> question_text pair after professor disconnect not implemented**
-	* ***BLOCK: msg['course_pk'] == {{ course.pk }} in course.html has to go off for this to be pushed***
-		* How I am implementing this is, if the map contains the course_name, I send the question json to the socket in ws_connect, bypassing waiting for ws_message from professor
-* Test:
-	* After stevie pressed the 'present' button, jlee01, late to class, should see the question. 
-
