@@ -151,7 +151,7 @@ class QuizUpdateView(UpdateView):
         return queryset
 
     def get_success_url(self):
-        return reverse('teachers:quiz_change', kwargs={'course_pk': self.kwargs['course_pk'],'quiz_pk': self.kwargs['quiz_pk']})
+        return reverse('teachers:quiz_change', kwargs={'course_pk': self.kwargs['course_pk'],'pk': self.kwargs['pk']})
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
