@@ -7,9 +7,6 @@ urlpatterns = [
 
     path('students/', include(([
         path('', students.CourseListView.as_view(), name='course_list'),
-        path('resetpassword', students.StudentResetPasswordRequestView.as_view(), name="reset_password"),
-        path('reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
-                               students.PasswordResetConfirmView.as_view(), name='reset_password_confirm'),
         path('course/<int:pk>/', students.course, name='course'),
         #path('course/add/', students.CourseRegisterView.as_view(), name='course_add'),
         path('course/add/', students.add_course, name='course_add'),
