@@ -49,11 +49,8 @@ class ResetPasswordRequestView(FormView):
                             'protocol': 'http',
                             }
                         subject_template_name='registration/password_reset_subject.txt'
-                        # copied from django/contrib/admin/templates/registration/password_reset_subject.txt to templates directory
                         email_template_name='registration/password_reset_email.html'
-                        # copied from django/contrib/admin/templates/registration/password_reset_email.html to templates directory
                         subject = loader.render_to_string(subject_template_name, c)
-                        # Email subject *must not* contain newlines
                         subject = ''.join(subject.splitlines())
                         email = loader.render_to_string(email_template_name, c)
                         send_mail(subject, email, DEFAULT_FROM_EMAIL , [user.email], fail_silently=False)
@@ -72,23 +69,16 @@ class PasswordResetConfirmView(FormView):
     form_class = SetPasswordForm
 
     def post(self, request, uidb64=None, token=None, *arg, **kwargs):
-        """
-        View that checks the hash in a password reset link and presents a
-        form for entering a new password.
-        """
         UserModel = User
         form = self.form_class(request.POST)
-        assert uidb64 is not None and token is not None  # checked by URLconf
+        assert uidb64 is not None and token is not None 
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
-            print(uid)
             user = UserModel._default_manager.get(pk=uid)
         except (TypeError, ValueError, OverflowError, UserModel.DoesNotExist):
             print('user is none')
-            user = None
-
-        if user is not None and default_token_generator.check_token(user, token):
             
+        if user is not None and default_token_generator.check_token(user, token):
             if form.is_valid():
                 new_password = form.cleaned_data['new_password2']
                 user.set_password(new_password)
