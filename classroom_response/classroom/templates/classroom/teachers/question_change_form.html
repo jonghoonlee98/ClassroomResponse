@@ -16,8 +16,12 @@
       if (count >= 10) {
         alert("You cannot have more than 10 answers");
       } else {
-        $("#answers").append("<div class='list-group-item' id='" + count + "'><div class='row'><div class='col-8'><input type='text' name='answer_" + count +"' size='35' required></input></div><div class='col-2'><input type='checkbox' name='right_" + count + "' ></input></div><div class='col-2'><input type='checkbox' name='delete_" + count +  "' ></input></div></div></div>");
+        $("#answers").append("<div class='list-group-item' id='" + count + "'><div class='row'><div class='col-8'><input type='text' name='answer_" + count +"' size='35' required></input></div><div class='col-2'><input type='checkbox' name='right_" + count + "' ></input></div><div class='col-2'><button onclick=delete_answer(" + count + ") name='delete_" + count +  "' ></button></div></div></div>");
       }
+    }
+
+    function delete_answer(id) {
+      $("#"+id).remove();
     }
 
     $(document).ready(function(){
@@ -86,7 +90,7 @@
                   {% endif %}
                 </div>
                 <div class="col-2">
-                  <input type='checkbox' name='delete_{{ forloop.counter0 }}'></input>
+                  <button name='delete_{{ forloop.counter0 }}' onclick='delete_answer({{ forloop.counter0 }})'></button>
                 </div>
               </div>
             </div>
@@ -101,7 +105,7 @@
                 <input type='checkbox' name='right_0'></input>
               </div>
               <div class="col-2">
-                <input type='checkbox' name='delete_0'></input>
+                <button name='delete_0' onclick='delete_answer(0)'></button>
               </div>
             </div>
           </div>
