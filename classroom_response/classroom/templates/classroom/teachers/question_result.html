@@ -140,6 +140,7 @@
     </ol>
   </nav>
   <h2 class="mb-3">Results</h2>
+  <a href="{% url 'teachers:question_result_csv' course_pk quiz.pk question.pk %}" class="btn btn-info float-right">Download as CSV</a>
   {% if student_answers and answers %}
     {% if question.question_type == 'MC' %}
       <div id="chartContainer"></div>

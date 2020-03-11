@@ -17,7 +17,7 @@ from ..forms import BaseAnswerInlineFormSet, QuestionForm, QuestionAddForm, Teac
 from ..models import *
 
 import json
-
+import csv
 
 
 class TeacherSignUpView(CreateView):
@@ -281,10 +281,9 @@ def question_change(request, course_pk, quiz_pk, question_pk):
                 answers = []
                 for x in range(0, 10):
                     text = request.POST.get('answer_' + str(x), None)
-                    delete = request.POST.get('delete_' + str(x), None)
                     correct = request.POST.get('right_' + str(x), None)
                     right = False if correct is None else True 
-                    if text is not None and delete is None:
+                    if text is not None:
                         answer = {
                             'text': text,
                             'is_correct': right
@@ -440,6 +439,28 @@ def question_result(request, course_pk, quiz_pk, question_pk):
         'answers': json.dumps(answers),
         'unit': unit
     })
+
+
+@login_required
+@teacher_required
+def question_result_csv(request, course_pk, quiz_pk, question_pk):
+    question = get_object_or_404(Question, pk=question_pk)
+    student_answers = StudentAnswer.objects.filter(question=question).values_list('submission')
+    print(student_answers)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="' + question.text + '.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([question.text + '\n'])
+    for a in list(student_answers):
+        data = json.loads(a[0])
+        if 'unit' in data:
+            writer.writerow([data['answer'], data['unit']])
+        else:
+            writer.writerow([data['answer']])
+
+    return response
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
