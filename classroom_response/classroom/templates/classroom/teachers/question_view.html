@@ -3,6 +3,8 @@
 {% load crispy_forms_tags crispy_forms_filters %}
 
 {% block content %}
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script>
     var ws = 'wss://'
     if (window.location.protocol == 'http:') {
@@ -61,7 +63,7 @@
       <li class="breadcrumb-item active" aria-current="page">{{ question.text }}</li>
     </ol>
   </nav>
-  <h2 class="mb-3">{{ question.text }}</h2>
+  <h2 class="mb-3">{{ question.latex }}</h2>
   {% if not question.is_active %}      
   <a id="present" href="{% url 'teachers:question_activate' course_pk quiz.pk question.pk %}" target="_blank"><button onclick="present({{ question.pk }}, {{ course_pk }})" class="btn btn-success float-left">Present</button></a>
   <a id="stop" href="{% url 'teachers:question_deactivate' course_pk quiz.pk question.pk %}"  style="display:none" target="_blank"><button onclick="stop({{ question.pk }}, {{ course_pk }})" class="btn btn-danger float-left">Stop Presenting</button></a>

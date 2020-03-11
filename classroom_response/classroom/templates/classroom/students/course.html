@@ -30,7 +30,7 @@
           }
         } else if (msg['question_type'] == 'NU') {
           $("#answer").append("<input type='text' name='student_answer' value='{{ answer }}' required></input> ");
-          if (msg['units'].length) {
+          if (msg['units']) {
             $("#answer").append("<select id='units' name='unit'>");
             for (var i = 0; i < msg['units'].length; i++) {
               $("#units").append("<option value='" + msg['units'][i] + "'>" + msg['units'][i] + "</option>");

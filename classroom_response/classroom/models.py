@@ -46,6 +46,7 @@ class Quiz(models.Model):
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
     text = models.CharField('Question', max_length=255)
+    latex = models.CharField('Latex', max_length= 255)
     question_type = models.CharField('Type', max_length=255, default='MC')
     image = models.ImageField(upload_to='images/', default=None, validators=[FileExtensionValidator(allowed_extensions=['jpeg', 'jpg', 'png'])], blank=True, null=True)
     is_active = models.BooleanField('Active', default=False)

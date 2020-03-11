@@ -15,6 +15,7 @@ def parse_MC(question):
         'type': 'present',
         'question_type': 'MC',
         'text': question.text,
+        'latex': question.latex,
         'answers': answer,
         'question_pk': question.pk
     }
@@ -32,6 +33,7 @@ def parse_NU(question):
         'type': 'present',
         'question_type': 'NU',
         'text': question.text,
+        'latex': question.latex,
         'units': units,
         'question_pk': question.pk
     }
