@@ -67,7 +67,6 @@ class Answer(models.Model):
     def __str__(self):
         return self.text
 
-
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')

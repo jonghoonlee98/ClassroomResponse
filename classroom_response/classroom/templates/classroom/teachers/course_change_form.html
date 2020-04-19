@@ -17,9 +17,6 @@
   </h5>
   <div class="card">
     <div class="card-header">
-      <a href="{% url 'teachers:quiz_add' course.pk %}" class="btn btn-primary btn-sm">Add quiz</a>
-    </div>
-    <div class="card-header">
       <div class="row">
         <div class="col-10">
           <strong>Quizzes</strong>
@@ -46,6 +43,9 @@
           <p class="text-muted font-italic mb-0">You haven't created any quizzes yet. Go ahead and <a href="{% url 'teachers:quiz_add' course.pk %}">add the first quiz</a>.</p>
         </div>
       {% endfor %}
+    </div>
+    <div class="card-header">
+      <a href="{% url 'teachers:quiz_add' course.pk %}" class="btn btn-primary btn-sm">Add quiz</a>
     </div>
 
   </div>
