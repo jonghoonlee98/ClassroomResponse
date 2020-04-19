@@ -68,6 +68,7 @@ def course(request, pk):
     questions = Question.objects.filter(quiz__course=course)
 
     if request.method == 'POST':
+        print('jong')
         print(request.POST)
         question = get_object_or_404(Question, pk=request.POST.get('question_pk', None))
         if question.question_type == 'MC':
@@ -85,6 +86,9 @@ def course(request, pk):
             except:
                 messages.error(request, "Answer must be a valid float")
                 return redirect('students:course', pk)
+        confidence = request.POST.get('confidence', None)
+        if confidence is not None:
+            submission['confidence'] = confidence
         StudentAnswer.objects.filter(student=student, question=question).delete()
         student_answer = StudentAnswer(student=student, question=question, submission=json.dumps(submission))
         student_answer.save()
