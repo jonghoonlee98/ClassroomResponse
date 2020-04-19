@@ -10,7 +10,11 @@ class User(AbstractUser):
     is_teacher = models.BooleanField(default=False)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    email = models.CharField(max_length=50)
+    email = models.CharField(max_length=50, unique=True)
+    username = models.CharField(max_length=30)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name',] 
 
 
 class Subject(models.Model):

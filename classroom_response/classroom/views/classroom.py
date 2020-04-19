@@ -1,4 +1,5 @@
 from django.shortcuts import redirect, render
+import os
 
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
@@ -46,7 +47,7 @@ class ResetPasswordRequestView(FormView):
                             'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
                             'user': user,
                             'token': default_token_generator.make_token(user),
-                            'protocol': 'http',
+                            'protocol': 'http' if os.environ.get('HOSTNAME') == None else 'https',
                             }
                         subject_template_name='registration/password_reset_subject.txt'
                         email_template_name='registration/password_reset_email.html'

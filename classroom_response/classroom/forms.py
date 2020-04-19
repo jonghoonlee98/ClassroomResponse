@@ -10,7 +10,7 @@ from classroom.models import (Answer, Question, Student, StudentAnswer,
 class TeacherSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', )
+        fields = ('email', 'first_name', 'last_name', )
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -29,7 +29,7 @@ class StudentSignUpForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', )
+        fields = ('email', 'first_name', 'last_name', )
 
     @transaction.atomic
     def save(self):
@@ -105,7 +105,7 @@ class TakeQuizForm(forms.ModelForm):
 
 # Forms for 
 class PasswordResetRequestForm(forms.Form):
-    email_or_username = forms.CharField(label=("Email Or Username"), max_length=254)
+    email_or_username = forms.CharField(label=("Email"), max_length=254)
 
 class SetPasswordForm(forms.Form):
     """
