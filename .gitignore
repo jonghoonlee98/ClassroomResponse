@@ -101,6 +101,5 @@ ENV/
 .mypy_cache/
 
 *.sqlite3
-migrations/
 dump.rdb
 local_settings.py
