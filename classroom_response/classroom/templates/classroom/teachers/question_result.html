@@ -7,6 +7,7 @@
   if ('{{ question.question_type }}' == 'MC') {
     window.onload = function () {
       var student_answers = JSON.parse('{{ student_answers|safe }}');
+      student_answers = student_answers.map(e => e['answer']);
       var prof_answers = JSON.parse('{{ answers|safe }}');
 
       var correct_answers_set = new Set(prof_answers.filter(x => x.is_correct == true).map(x => x.text))
@@ -72,11 +73,14 @@
       }
 
       Plotly.newPlot('chartContainer', data, layout);
+      confidence();
     }
+    
   }
   else if ('{{ question.question_type }}' == 'NU') {
     window.onload = function () {
       var raw = JSON.parse('{{ student_answers|safe }}');
+
       const counter = (acc, x) => {
         let key = x.answer + x.unit.toString()
         if (!acc.hasOwnProperty(key)) {
@@ -126,8 +130,24 @@
       myPlot.on('plotly_hover', function(data){
 
       });
+    confidence();
     }
   }
+
+  function confidence() {
+    var submissions = JSON.parse('{{ student_answers|safe }}');
+    var total_responses = submissions.length;
+    var confidences = submissions.filter(e => e.hasOwnProperty('confidence'));
+    confidences = confidences.map(e => e['confidence']);
+    console.log(confidences);
+    var avg = 0;
+    for (var i = 0; i < confidences.length; i++) {
+      avg = avg + parseInt(confidences[i]);
+    }
+    avg = avg/confidences.length;
+    $("#confidence").html("Average confidence rating: " + avg + "/5<br/>" + confidences.length + " out of " + total_responses + " students submitted a confidence rating.");
+  }
+
 </script>
 
   <nav aria-label="breadcrumb">
@@ -141,6 +161,7 @@
   </nav>
   <h2 class="mb-3">Results</h2>
   <a href="{% url 'teachers:question_result_csv' course_pk quiz.pk question.pk %}" class="btn btn-info float-right">Download as CSV</a>
+  <br/><br/>
   {% if student_answers and answers %}
     {% if question.question_type == 'MC' %}
       <div id="chartContainer"></div>
@@ -148,6 +169,9 @@
       Correct answer: {{ answers }} {% if unit %} {{ unit }} {% endif %}
       <div id='chartContainer'></div>
     {% endif %}
+    <div id='confidence'>The c</div>
+    <br/>
+    <p><small>Note: The confidence rating is an optional submission that comes with each question where students can submit how confident they feel in their answer on a 5 point scale.</small></p>
   {% else %}
   No results to show.
   {% endif %}
