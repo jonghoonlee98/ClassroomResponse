@@ -18,6 +18,10 @@
       handleMessage(msg);
     };
 
+    $(':radio').change(function() {
+      console.log('New star rating: ' + this.value);
+    });
+
     function handleMessage(msg) {
       if (msg['type'] == 'present') {
         $("#answer").empty();
@@ -38,6 +42,9 @@
             $("#answer").append("</select>");
           }
         }
+        $("#answer").append("<hr/>");
+        $("#answer").append("<p>(Optional) How confident are you in your answer?</p>");
+        $("#answer").append('<div class="rating"><label><input type="radio" name="confidence" value="1" /><span class="icon">★</span></label><label><input type="radio" name="confidence" value="2" /><span class="icon">★</span><span class="icon">★</span></label><label><input type="radio" name="confidence" value="3" /><span class="icon">★</span><span class="icon">★</span><span class="icon">★</span>   </label><label><input type="radio" name="confidence" value="4" /><span class="icon">★</span><span class="icon">★</span><span class="icon">★</span><span class="icon">★</span></label><label><input type="radio" name="confidence" value="5" /><span class="icon">★</span><span class="icon">★</span><span class="icon">★</span><span class="icon">★</span><span class="icon">★</span></label></div>')
         $("<input />").attr("type", "hidden")
           .attr("name", "question_pk")
           .attr("value", msg['question_pk'])

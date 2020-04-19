@@ -412,10 +412,11 @@ def question_result(request, course_pk, quiz_pk, question_pk):
     answers = None
     unit = None
     submissions = []
+    print(list(student_answers))
 
     if question.question_type == 'MC':
         for a in list(student_answers):
-            submissions.append(json.loads(a[0])['answer'])
+            submissions.append(json.loads(a[0]))
     elif question.question_type == 'NU':
         for a in list(student_answers):
             submissions.append(json.loads(a[0]))
