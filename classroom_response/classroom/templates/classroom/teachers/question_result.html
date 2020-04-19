@@ -139,12 +139,13 @@
     var total_responses = submissions.length;
     var confidences = submissions.filter(e => e.hasOwnProperty('confidence'));
     confidences = confidences.map(e => e['confidence']);
-    console.log(confidences);
     var avg = 0;
-    for (var i = 0; i < confidences.length; i++) {
-      avg = avg + parseInt(confidences[i]);
+    if (confidences.length != 0) {  
+      for (var i = 0; i < confidences.length; i++) {
+        avg = avg + parseInt(confidences[i]);
+      }
+      avg = avg/confidences.length;
     }
-    avg = avg/confidences.length;
     $("#confidence").html("Average confidence rating: " + avg + "/5<br/>" + confidences.length + " out of " + total_responses + " students submitted a confidence rating.");
   }
 
