@@ -18,11 +18,14 @@
   <div class="card">
     <div class="card-header">
       <div class="row">
-        <div class="col-10">
+        <div class="col-7">
           <strong>Quizzes</strong>
         </div>
         <div class="col-2">
           <strong>Questions</strong>
+        </div>
+        <div class="col-1">
+          <strong></strong>
         </div>
       </div>
     </div>
@@ -30,11 +33,14 @@
       {% for quiz in quizzes %}
         <div class="list-group-item">
           <div class="row">
-            <div class="col-10">
+            <div class="col-7">
               <a href="{% url 'teachers:quiz_change' course.pk quiz.pk %}">{{ quiz.name }}</a>
             </div>
             <div class="col-2">
               {{ quiz.questions_count }}
+            </div>
+            <div class="col-1">
+              <a href="{% url 'teachers:quiz_delete' course_pk=course.pk pk=quiz.pk %}" class="btn btn-danger btn-sm">Delete</a>
             </div>
           </div>
         </div>

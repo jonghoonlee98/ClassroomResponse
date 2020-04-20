@@ -177,7 +177,7 @@ class QuizDeleteView(DeleteView):
         return queryset
 
     def get_success_url(self):
-        return reverse('teachers:quiz_change_list', kwargs={'pk': self.kwargs['course_pk']})
+        return reverse('teachers:course_change', kwargs={'pk': self.kwargs['course_pk']})
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
