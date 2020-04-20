@@ -59,7 +59,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.admin',
-
+    'cloudinary_storage',
+    'cloudinary',
     'crispy_forms',
     'channels',
     'classroom',
@@ -200,3 +201,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # Third party apps configuration
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CCLOUD', None),
+    'API_KEY': os.getenv('CKEY', None),
+    'API_SECRET': os.getenv('CSECRET', None),
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
