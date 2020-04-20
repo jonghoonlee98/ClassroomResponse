@@ -26,19 +26,22 @@
   <div class="card">
     <div class="card-header">
       <div class="row">
-        <div class="col-10">
+        <div class="col-7">
           <strong>Questions</strong>
         </div>
         <div class="col-2">
           <strong>Type</strong>
         </div>
+        <div class="col-1">
+          
+        </div>
       </div>
     </div>
     <div class="list-group list-group-flush list-group-formset">
       {% for question in questions %}
-        <div class="list-group-item" draggable="true"> 
+        <div class="list-group-item" id="{{ question.pk }}" draggable="true"> 
           <div class="row">
-            <div class="col-10">
+            <div class="col-7">
               <a href="{% url 'teachers:question_view' course_pk quiz.pk question.pk %}">{{ question.text }}</a>
               {% if question.is_active %} 
                 (LIVE)
@@ -47,7 +50,11 @@
 
             <div class="col-2">
               {{ question.question_type }} 
+              
             </div>
+            <div class="col-1">
+            <a href="{% url 'teachers:question_delete' course_pk=course_pk quiz_pk=quiz.pk question_pk=question.pk %}" class="btn btn-danger btn-sm">Delete</a>
+          </div>
           </div>
         </div>
       {% empty %}

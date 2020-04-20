@@ -205,6 +205,15 @@ class QuizResultsView(DetailView):
 
 @login_required
 @teacher_required
+def question_delete(request, course_pk, quiz_pk, question_pk):
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
+    question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
+    Question.objects.filter(pk=question_pk).delete()
+    return redirect('teachers:quiz_change', course_pk=course_pk, pk=quiz.pk)
+
+
+@login_required
+@teacher_required
 def question_add(request, course_pk, pk):
     # By filtering the quiz by the url keyword argument `pk` and
     # by the owner, which is the logged in user, we are protecting
@@ -266,6 +275,8 @@ def question_view(request, course_pk, quiz_pk, question_pk):
             'answer': answer,
             'correct_unit': correct_unit
         })
+
+
 
 @login_required
 @teacher_required
@@ -488,3 +499,12 @@ class QuestionDeleteView(DeleteView):
     def get_success_url(self):
         question = self.get_object()
         return reverse('teachers:quiz_change', kwargs={'pk': question.quiz_id, 'course_pk': self.kwargs['course_pk']})
+
+
+
+
+
+
+
+
+
