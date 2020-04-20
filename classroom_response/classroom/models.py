@@ -53,7 +53,7 @@ class Question(models.Model):
     text = models.CharField('Label (text only)', max_length=255)
     latex = models.CharField('Question (latex allowed)', max_length= 255)
     question_type = models.CharField('Type', max_length=255, default='MC')
-    image = models.ImageField(upload_to='images/', default=None, validators=[FileExtensionValidator(allowed_extensions=['jpeg', 'jpg', 'png'])], blank=True, null=True)
+    image = models.ImageField(upload_to='images/', default=None, blank=True, null=True)
     is_active = models.BooleanField('Active', default=False)
 
     def __str__(self):
