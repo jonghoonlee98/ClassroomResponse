@@ -46,7 +46,7 @@
         </div>
       {% empty %}
         <div class="list-group-item text-center">
-          <p class="text-muted font-italic mb-0">You haven't created any quizzes yet. Go ahead and <a href="{% url 'teachers:quiz_add' course.pk %}">add the first quiz</a>.</p>
+          <p class="text-muted font-italic mb-0">You haven't created any quizzes yet. Go ahead and <a href="{% url 'teachers:quiz_add' course.id %}">add the first quiz</a>.</p>
         </div>
       {% endfor %}
     </div>
