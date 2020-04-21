@@ -80,9 +80,12 @@
   else if ('{{ question.question_type }}' == 'NU') {
     window.onload = function () {
       var raw = JSON.parse('{{ student_answers|safe }}');
-
+      
       const counter = (acc, x) => {
-        let key = x.answer + x.unit.toString()
+        let key = x.answer;
+        if (x['unit'] !== null) {
+          key = x.answer + x.unit.toString()
+        }
         if (!acc.hasOwnProperty(key)) {
           acc[key] = x;
           acc[key]['count'] = 0
@@ -92,8 +95,15 @@
       }
 
       let d = Object.values(raw.reduce(counter, {}))
+      console.log(d)
       function unpack(rows, key) {
-        return rows.map(function(row) { return row[key]; });
+        return rows.map(function(row) { 
+          if (row[key] !== null) {
+            return row[key];
+          } else {
+            return "None";
+          }
+        });
       }
       // -----------------------------------------------------------------------------
       values = unpack(d, 'answer')
@@ -170,7 +180,7 @@
       Correct answer: {{ answers }} {% if unit %} {{ unit }} {% endif %}
       <div id='chartContainer'></div>
     {% endif %}
-    <div id='confidence'>The c</div>
+    <div id='confidence'></div>
     <br/>
     <p><small>Note: The confidence rating is an optional submission that comes with each question where students can submit how confident they feel in their answer on a 5 point scale.</small></p>
   {% else %}
