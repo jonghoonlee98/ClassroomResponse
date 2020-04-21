@@ -1,6 +1,8 @@
 # ClassroomResponse
 
-## Server Setup:
+Link: https://classroomresponsesystem.herokuapp.com/
+
+## Server Setup local:
 
 1. clone the repo
 2. pip3 install -r requirements.txt
@@ -12,6 +14,9 @@
 8. python3 manage.py migrate classroom
 9. http://localhost:8000/
 **Note: you must have python 3.6.5**
+
+# Deploying to Heroku:
+Automatic deploys from this github are enabled. Just push to this repo the changes will be pushed to prod
 
 ## Key Features:
 * Organize questions, quizzes, and classes
