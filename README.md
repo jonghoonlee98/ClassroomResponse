@@ -1,17 +1,37 @@
 # ClassroomResponse
 
-How to run the application:
+## Server Setup:
 
 1. clone the repo
 2. pip3 install -r requirements.txt
 3. brew update
 4. brew install redis
 5. brew services start redis
-6. python3 manage.py makemigrations classroom
-7. python3 manage.py migrate classroom
+6. cd classroom_response
+7. python3 manage.py makemigrations classroom
+8. python3 manage.py migrate classroom
+9. http://localhost:8000/
+**Note: you must have python 3.6.5**
 
+## Test accounts:
+If you want to dive right in, here are some already created logins
+Teacher:
+* email: teacher@google.com, password: pass
 
+Student:
+* email: student@google.com, password: pass
+* email: student2@google.com, password: pass
 
+## Baseline code: open sourced django starter
+Originally we had started from scratch. Our custom authentiation system became messy quickly, so we decided to look at how other django users implemented authentication across multiple pages. We came across [this](https://github.com/sibtc/django-multiple-user-types-example/) code that used the decorator design pattern which was much cleaner than what we originally had. Because we like this example so much, we cloned it and used it as our baseline.
+
+## Key Features:
+* Organize questions, quizzes, and classes
+* Multiple choice and numeric questions
+* Student Feedback on questions
+* Websocket connection between professor and student
+* Graphs to quickly analyze results of questions
+* Download results of questions as a csv
 
 **Commit "adding groups by classname"** -- Roy
 * Implementation:
