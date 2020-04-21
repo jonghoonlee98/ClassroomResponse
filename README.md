@@ -15,7 +15,7 @@ Link: https://classroomresponsesystem.herokuapp.com/
 9. http://localhost:8000/
 **Note: you must have python 3.6.5**
 
-# Deploying to Heroku:
+## Deploying to Heroku:
 Automatic deploys from this github are enabled. Just push to this repo the changes will be pushed to prod
 
 ## Key Features:
