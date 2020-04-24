@@ -138,7 +138,8 @@ class QuizUpdateView(UpdateView):
         kwargs['course_pk'] = self.kwargs['course_pk']
         kwargs['course_name'] = Course.objects.get(pk=self.kwargs['course_pk']).name
         kwargs['quiz_pk'] = self.kwargs['pk']
-        kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))
+        kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers')).order_by('order')
+
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
@@ -214,19 +215,35 @@ def question_delete(request, course_pk, quiz_pk, question_pk):
 
 @login_required
 @teacher_required
+def question_reorder(request, course_pk, pk):
+    if request.method == 'POST':
+        question_id = request.POST['question_id']
+        question_order = request.POST['question_order']
+        Question.objects.filter(pk=question_id).update(order=question_order)
+        
+    return redirect('teachers:quiz_change', course_pk=request.POST['course_pk'], pk=request.POST['quiz_pk'])
+    #Question.objects.filter(pk=)
+
+@login_required
+@teacher_required
 def question_add(request, course_pk, pk):
     # By filtering the quiz by the url keyword argument `pk` and
     # by the owner, which is the logged in user, we are protecting
     # this view at the object-level. Meaning only the owner of
     # quiz will be able to add questions to it.
     quiz = get_object_or_404(Quiz, pk=pk)
+    # query number of questions by quiz and pk
+    
 
     if request.method == 'POST':
         form = QuestionAddForm(request.POST, request.FILES)
         if form.is_valid():
+            question_count = Question.objects.filter(quiz=quiz).count()
+            print(question_count)
             question = form.save(commit=False)
             question.quiz = quiz
             question.question_type = request.POST.get("Type", None)
+            question.order = question_count
             question.save()
             messages.success(request, 'You may now add answers/options to the question.')
             return redirect('teachers:question_change', course_pk, quiz.pk, question.pk)

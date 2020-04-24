@@ -70,14 +70,17 @@
   <hr/>
   <div class="row mb-3">
     <div class="col-md-6 col-sm-8 col-12">
-        <a href="{% url 'teachers:quiz_delete' course_pk=course_pk pk=quiz_pk %}" class="btn btn-danger float-left">Delete Quiz</a>
+        <div onclick="updateOrder()" class="btn btn-primary float-left">save order</a>
     </div>
   </div>
+</div>
   <script>
+
 var list_items = document.querySelectorAll('.list-group-item');
 var list = document.querySelector(".list-group")
 
 let draggedItem = null;
+let bottom = null;
 console.log(list_items);
 for (let i = 0; i < list_items.length; i++) {
   const item = list_items[i];
@@ -88,19 +91,26 @@ for (let i = 0; i < list_items.length; i++) {
     setTimeout(function() {
       console.log('dragstart');
       item.style.display = 'none';
+      list.removeChild(item);
+      list_items = document.querySelectorAll('.list-group-item');
+      console.log(list_items);
     }, 0)
   });
 
   item.addEventListener('dragend', function() {
     setTimeout(function() {
       item.style.display = 'block';
+      list.insertBefore(draggedItem, bottom);
       draggedItem = null;
+      list_items = document.querySelectorAll('.list-group-item');
+      console.log(list_items);
+      
+
     }, 0);
   });
 
-  list.addEventListener('dragover', function(e) {
-    // console.log('dragover' + e);
-    e.preventDefault();
+  item.addEventListener('dragover', function(e) {
+    bottom = item;
   });
 
   list.addEventListener('dragenter', function(e) {
@@ -111,9 +121,47 @@ for (let i = 0; i < list_items.length; i++) {
   list.addEventListener('drop', function(e) {
     console.log('drop');
     this.appendChild(draggedItem);
-
   });
+};
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
+
+var updateOrder = function() {
+  //list_items = document.querySelectorAll('.list-group-item');
+  var order = 1;
+  list_items.forEach(item => {
+    console.log(item.id);
+    var data = { 
+      question_id: item.id, 
+      question_order: order++, 
+      course_pk: "{{ course_pk }}", 
+      quiz_pk: "{{ quiz_pk }}", 
+      csrfmiddlewaretoken: getCookie('csrftoken')
+    };
+
+    var args = { 
+      type: "POST", 
+      url:"{% url 'teachers:question_reorder' course_pk=course_pk pk=quiz_pk %}",
+      data: data
+    };
+    $.ajax(args);
+  });
+    
+};
 
 </script>
 {% endblock %}

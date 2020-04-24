@@ -28,6 +28,7 @@ urlpatterns = [
         path('course/<int:course_pk>/quiz/<int:pk>/delete/', teachers.QuizDeleteView.as_view(), name='quiz_delete'),
         path('course/<int:course_pk>/quiz/<int:pk>/results/', teachers.QuizResultsView.as_view(), name='quiz_results'),
         path('course/<int:course_pk>/quiz/<int:pk>/question/add/', teachers.question_add, name='question_add'),
+        path('course/<int:course_pk>/quiz/<int:pk>/question/reorder/', teachers.question_reorder, name='question_reorder'),
         path('course/<int:course_pk>/quiz/<int:quiz_pk>/question/<int:question_pk>/', teachers.question_view, name='question_view'),
         path('course/<int:course_pk>/quiz/<int:quiz_pk>/question/<int:question_pk>/delete/', teachers.question_delete, name='question_delete'),
         path('course/<int:course_pk>/quiz/<int:quiz_pk>/question/<int:question_pk>/change/', teachers.question_change, name='question_change'),

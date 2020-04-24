@@ -11,7 +11,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.CharField(max_length=50, unique=True)
-    username = models.CharField(max_length=30)
+    username = models.CharField(max_length = 30)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name',] 
@@ -55,6 +55,7 @@ class Question(models.Model):
     question_type = models.CharField('Type', max_length=255, default='MC')
     image = models.ImageField(upload_to='images/', default=None, blank=True, null=True)
     is_active = models.BooleanField('Active', default=False)
+    order = models.IntegerField('Active', default = 0);
 
     def __str__(self):
         return self.text
