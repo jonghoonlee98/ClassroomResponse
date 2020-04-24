@@ -138,7 +138,7 @@ class QuizUpdateView(UpdateView):
         kwargs['course_pk'] = self.kwargs['course_pk']
         kwargs['course_name'] = Course.objects.get(pk=self.kwargs['course_pk']).name
         kwargs['quiz_pk'] = self.kwargs['pk']
-        kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers')).order_by('order')
+        kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers')).order_by('position')
 
         return super().get_context_data(**kwargs)
 
@@ -219,7 +219,7 @@ def question_reorder(request, course_pk, pk):
     if request.method == 'POST':
         question_id = request.POST['question_id']
         question_order = request.POST['question_order']
-        Question.objects.filter(pk=question_id).update(order=question_order)
+        Question.objects.filter(pk=question_id).update(position=question_order)
         
     return redirect('teachers:quiz_change', course_pk=request.POST['course_pk'], pk=request.POST['quiz_pk'])
     #Question.objects.filter(pk=)
@@ -243,7 +243,7 @@ def question_add(request, course_pk, pk):
             question = form.save(commit=False)
             question.quiz = quiz
             question.question_type = request.POST.get("Type", None)
-            question.order = question_count
+            question.position = question_count
             question.save()
             messages.success(request, 'You may now add answers/options to the question.')
             return redirect('teachers:question_change', course_pk, quiz.pk, question.pk)
