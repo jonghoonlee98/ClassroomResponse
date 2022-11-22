@@ -1,7 +1,7 @@
 Django==2.0.1
 django-crispy-forms==1.7.0
 pytz==2017.3
-Pillow==7.0.0
+Pillow==9.3.0
 redis==2.10.6
 asgiref==1.1.1
 asgi_redis==1.2.1
